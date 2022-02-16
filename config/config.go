@@ -1,6 +1,8 @@
 package config
 
 import (
+	"os"
+	"strconv"
 	"sync"
 )
 
@@ -34,12 +36,12 @@ func GetConfig() *AppConfig {
 
 func initConfig() *AppConfig {
 	var defaultConfig AppConfig
-	defaultConfig.Port = 8080
-	defaultConfig.Database.Driver = "mysql"
-	defaultConfig.Database.Name = "capstone_project"
-	defaultConfig.Database.Address = "localhost" //172.17.0.1
-	defaultConfig.Database.Port = 3306
-	defaultConfig.Database.Username = "root"
-	defaultConfig.Database.Password = "asdf1234"
+	defaultConfig.Port, _ = strconv.Atoi(os.Getenv("DB_Port"))
+	defaultConfig.Database.Driver = os.Getenv("DB_Driver")
+	defaultConfig.Database.Name = os.Getenv("DB_Name")
+	defaultConfig.Database.Address = os.Getenv("DB_Address") //172.17.0.1
+	defaultConfig.Database.Port, _ = strconv.Atoi(os.Getenv("DB_Port"))
+	defaultConfig.Database.Username = os.Getenv("DB_Username")
+	defaultConfig.Database.Password = os.Getenv("DB_Password")
 	return &defaultConfig
 }

@@ -17,6 +17,6 @@ jobs:
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
         script: |
-          cd "Event-Planning-App-Gaskeuun"
+          cd "CapStoneProject-Group-1"
           git pull origin main
           docker-compose down && docker-compose up --build -d
