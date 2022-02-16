@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+	"os"
 	"sirclo/config"
 	_authController "sirclo/delivery/controllers/auth"
 	_userController "sirclo/delivery/controllers/user"
@@ -9,11 +11,16 @@ import (
 	_userRepo "sirclo/repository/user"
 	"sirclo/util"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
-	secret := "rahasia"
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	secret := os.Getenv("SECRET")
 	//load config if available or set to default
 	config := config.GetConfig()
 

@@ -14,7 +14,7 @@ type SuccessDataResponse struct {
 
 func CustomResponse(code int, status string, message string) map[string]interface{} {
 	return map[string]interface{}{
-		"code":    200,
+		"code":    code,
 		"status":  status,
 		"message": message,
 	}

@@ -36,7 +36,7 @@ func initConfig() *AppConfig {
 	var defaultConfig AppConfig
 	defaultConfig.Port = 8080
 	defaultConfig.Database.Driver = "mysql"
-	defaultConfig.Database.Name = "crud_group_project"
+	defaultConfig.Database.Name = "capstone_project"
 	defaultConfig.Database.Address = "localhost" //172.17.0.1
 	defaultConfig.Database.Port = 3306
 	defaultConfig.Database.Username = "root"

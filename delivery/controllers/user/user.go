@@ -3,6 +3,7 @@ package user
 import (
 	"net/http"
 	"sirclo/delivery/common"
+	"sirclo/delivery/controllers/imageLib"
 	"sirclo/delivery/middlewares"
 	"sirclo/entities"
 	userRepo "sirclo/repository/user"
@@ -97,13 +98,40 @@ func (uc UserController) EditUser(secret string) echo.HandlerFunc {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
+		//checking tokenId = userId
 		if loginId != userId {
 			return c.JSON(http.StatusUnauthorized, common.Unauthorized())
 		}
 		var userRequest UserRequestFormat
-
+		// prosess binding text
 		if err_bind := c.Bind(&userRequest); err_bind != nil {
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
+		}
+
+		// prosess binding image
+		fileData, fileInfo, err_binding_image := c.Request().FormFile("image")
+		if err_binding_image != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "failed to bind image"))
+		}
+
+		// check file extension
+		extension, err_check_extension := imageLib.CheckFileExtension(fileInfo.Filename)
+
+		if err_check_extension != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "image extension error"))
+		}
+
+		// check file size
+		err_check_size := imageLib.CheckFileSize(fileInfo.Size)
+		if err_check_size != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file size error"))
+		}
+		fileName := "user_" + strconv.Itoa(userId) + "." + extension
+
+		// upload the photo
+		theUrl, err_upload_photo := imageLib.UploadImage("user", fileName, fileData)
+		if err_upload_photo != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "Upload Image Failed"))
 		}
 
 		passwordHash, _ := bcrypt.GenerateFromPassword([]byte(userRequest.Password), bcrypt.MinCost)
@@ -111,6 +139,7 @@ func (uc UserController) EditUser(secret string) echo.HandlerFunc {
 			Name:     userRequest.Name,
 			Password: string(passwordHash),
 			Email:    userRequest.Email,
+			ImageUrl: theUrl,
 		}
 
 		err_edit := uc.repository.EditUser(user, userId)
