@@ -19,7 +19,4 @@ jobs:
         script: |
           cd "CapStoneProject-Group-1"
           git pull origin main
-          cd ..
-          sudo cp .env /CapStoneProject-Group-1
-          cd "CapStoneProject-Group-1"
           docker-compose down && docker-compose up --build -d

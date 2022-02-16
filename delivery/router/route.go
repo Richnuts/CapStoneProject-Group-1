@@ -17,7 +17,7 @@ func RegisterPath(
 	secret string,
 ) {
 	// logger
-	e.Pre(middleware.RemoveTrailingSlash(), middleware.Logger(), middleware.HTTPSRedirect())
+	e.Pre(middleware.RemoveTrailingSlash(), middleware.Logger())
 	// cors
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
