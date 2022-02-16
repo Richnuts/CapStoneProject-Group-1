@@ -10,7 +10,7 @@ RUN mkdir /app
 ## directory
 WORKDIR /app
 
-COPY .env /app
+COPY .env ../
 COPY go.mod /app
 COPY go.sum /app
 RUN go mod download
