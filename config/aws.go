@@ -24,7 +24,7 @@ func GetSession() *session.Session {
 
 func initSession() *session.Session {
 	newSession := session.Must(session.NewSession(&aws.Config{
-		Region:      aws.String("ap-southeast-3"),
+		Region:      aws.String(os.Getenv("AWS_Region")),
 		Credentials: credentials.NewStaticCredentials(os.Getenv("AWS_Access_key_ID"), os.Getenv("AWS_Secret_access_key"), ""),
 	}))
 	return newSession
