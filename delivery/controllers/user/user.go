@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"net/http"
 	"sirclo/delivery/common"
 	"sirclo/delivery/controllers/imageLib"
@@ -30,9 +31,10 @@ func (uc UserController) GetProfile(secret string) echo.HandlerFunc {
 		if loginId == 0 {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
-
+		fmt.Println(loginId)
 		result, err := uc.repository.GetUser(loginId)
 		if err != nil {
+			fmt.Println(err)
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
 
@@ -45,6 +47,11 @@ func (uc UserController) GetUser(secret string) echo.HandlerFunc {
 		// check token
 		loginId := middlewares.GetUserId(secret, c)
 		if loginId == 0 {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// check role
+		role := middlewares.GetUserRole(secret, c)
+		if role != "admin" {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
 		// getting the id
@@ -107,44 +114,47 @@ func (uc UserController) EditUser(secret string) echo.HandlerFunc {
 		if err_bind := c.Bind(&userRequest); err_bind != nil {
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
-
+		theUrl := uc.repository.GetUserImageUrl(userId)
+		if theUrl == "" {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "user image not found"))
+		}
 		// prosess binding image
 		fileData, fileInfo, err_binding_image := c.Request().FormFile("image")
-		if err_binding_image != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "failed to bind image"))
-		}
+		if err_binding_image == nil {
+			// check file extension
+			extension, err_check_extension := imageLib.CheckFileExtension(fileInfo.Filename)
+			if err_check_extension == nil {
+				return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file extension error"))
+			}
 
-		// check file extension
-		extension, err_check_extension := imageLib.CheckFileExtension(fileInfo.Filename)
+			// check file size
+			err_check_size := imageLib.CheckFileSize(fileInfo.Size)
+			if err_check_size != nil {
+				return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file size error"))
+			}
+			fileName := "user_" + strconv.Itoa(userId) + "." + extension
 
-		if err_check_extension != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "image extension error"))
-		}
-
-		// check file size
-		err_check_size := imageLib.CheckFileSize(fileInfo.Size)
-		if err_check_size != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file size error"))
-		}
-		fileName := "user_" + strconv.Itoa(userId) + "." + extension
-
-		// upload the photo
-		theUrl, err_upload_photo := imageLib.UploadImage("user", fileName, fileData)
-		if err_upload_photo != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "Upload Image Failed"))
+			// upload the photo
+			var err_upload_photo error
+			theUrl, err_upload_photo = imageLib.UploadImage("user", fileName, fileData)
+			if err_upload_photo != nil {
+				return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "Upload Image Failed"))
+			}
 		}
 
 		passwordHash, _ := bcrypt.GenerateFromPassword([]byte(userRequest.Password), bcrypt.MinCost)
 		user := entities.User{
+			Id:       userId,
 			Name:     userRequest.Name,
 			Password: string(passwordHash),
 			Email:    userRequest.Email,
 			ImageUrl: theUrl,
 		}
-
-		err_edit := uc.repository.EditUser(user, userId)
+		fmt.Println(user)
+		err_edit := uc.repository.EditUser(user)
 
 		if err_edit != nil {
+			fmt.Println(err_edit)
 			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("berhasil mengubah data user"))

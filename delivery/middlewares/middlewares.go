@@ -25,10 +25,21 @@ func GetUserId(secret string, e echo.Context) int {
 	return 0
 }
 
-func CreateToken(id int) (string, error) {
+func GetUserRole(secret string, e echo.Context) string {
+	user := e.Get("user").(*jwt.Token)
+	if user != nil && user.Valid {
+		claims := user.Claims.(jwt.MapClaims)
+		userRole := claims["role"].(string)
+		return userRole
+	}
+	return ""
+}
+
+func CreateToken(id int, role string) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
 	claims["id"] = id
+	claims["role"] = role
 	claims["exp"] = time.Now().Add(time.Hour * 144).Unix()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

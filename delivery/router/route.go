@@ -25,9 +25,9 @@ func RegisterPath(
 	}))
 	// auth
 	e.POST("/login", authController.Login())
-	e.POST("/register", authController.Register())
+	// e.POST("/register", authController.Register())
 	// user
-	e.GET("/users", userController.GetProfile(secret), middlewares.JWTMiddleware())
+	e.GET("/profile", userController.GetProfile(secret), middlewares.JWTMiddleware())
 	e.GET("/users/:id", userController.GetUser(secret), middlewares.JWTMiddleware())
 	e.DELETE("/users/:id", userController.DeleteUser(secret), middlewares.JWTMiddleware())
 	e.PUT("/users/:id", userController.EditUser(secret), middlewares.JWTMiddleware())
