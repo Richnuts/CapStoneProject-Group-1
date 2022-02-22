@@ -62,10 +62,10 @@ func (sr *ScheduleRepository) GetSchedule(scheduleId int, offset int) (entities.
 	JOIN
 		attendances ON users.id = attendances.user_id
 	WHERE 
-		attendances.schedule_id = ? 
+		attendances.schedule_id = ? AND attendances.status = ?
 	ORDER BY
 		attendances.updated_at DESC
-	LIMIT 10 OFFSET ?`, scheduleId, offset)
+	LIMIT 10 OFFSET ?`, scheduleId, "approved", offset)
 	if err_users != nil {
 		return hasil, err_users
 	}
