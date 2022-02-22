@@ -13,11 +13,11 @@ type User struct {
 }
 
 type UserResponseFormat struct {
-	Id            int                `json:"id" form:"id"`
-	Name          string             `json:"name" form:"name"`
-	Email         string             `json:"email" form:"email"`
-	ImageUrl      string             `json:"image_url" form:"image_url"`
-	Nik           string             `json:"nik" form:"nik"`
-	VaccineStatus string             `json:"vaccine_status" form:"vaccine_status"`
-	Office        OfficeUserResponse `json:"office" form:"office"`
+	Id            int    `json:"id" form:"id"`
+	Name          string `json:"name" form:"name"`
+	Email         string `json:"email" form:"email"`
+	ImageUrl      string `json:"image_url" form:"image_url"`
+	Nik           string `json:"nik" form:"nik"`
+	VaccineStatus string `json:"vaccine_status" form:"vaccine_status"`
+	Office        string `json:"office" form:"office"`
 }

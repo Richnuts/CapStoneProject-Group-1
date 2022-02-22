@@ -122,7 +122,7 @@ func (uc UserController) EditUser(secret string) echo.HandlerFunc {
 		fileData, fileInfo, err_binding_image := c.Request().FormFile("image")
 		if err_binding_image == nil {
 			// check file extension
-			extension, err_check_extension := imageLib.CheckFileExtension(fileInfo.Filename)
+			_, err_check_extension := imageLib.CheckFileExtension(fileInfo.Filename)
 			if err_check_extension == nil {
 				return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file extension error"))
 			}
@@ -132,7 +132,7 @@ func (uc UserController) EditUser(secret string) echo.HandlerFunc {
 			if err_check_size != nil {
 				return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file size error"))
 			}
-			fileName := "user_" + strconv.Itoa(userId) + "." + extension
+			fileName := "user_" + strconv.Itoa(userId)
 
 			// upload the photo
 			var err_upload_photo error
