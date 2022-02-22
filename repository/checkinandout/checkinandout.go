@@ -25,3 +25,15 @@ func (cr *CheckRepository) Checkin(attendance entities.CheckinAndOutResponseForm
 	}
 	return nil
 }
+
+func (cr *CheckRepository) Checkout(attendance entities.CheckinAndOutResponseFormat) error {
+	result, err := cr.db.Exec("UPDATE attendances SET check_out = ?, updated_at = now() WHERE id = ? AND deleted_at IS null", attendance.Checkout, attendance.User.Id)
+	if err != nil {
+		return err
+	}
+	mengubah, _ := result.RowsAffected()
+	if mengubah == 0 {
+		return fmt.Errorf("user not found")
+	}
+	return nil
+}
