@@ -3,6 +3,7 @@ package schedule
 import (
 	"database/sql"
 	"fmt"
+	"math"
 	"sirclo/entities"
 	"time"
 )
@@ -48,7 +49,7 @@ func (sr *ScheduleRepository) EditSchedule(date string, capacity int, officeId i
 	return nil
 }
 
-func (sr *ScheduleRepository) GetSchedule(scheduleId int) (entities.ScheduleResponse, error) {
+func (sr *ScheduleRepository) GetSchedule(scheduleId int, offset int) (entities.ScheduleResponse, error) {
 	var hasil entities.ScheduleResponse
 	var users []entities.UserResponseFormat
 	result1, err_users := sr.db.Query(`
@@ -61,7 +62,10 @@ func (sr *ScheduleRepository) GetSchedule(scheduleId int) (entities.ScheduleResp
 	JOIN
 		attendances ON users.id = attendances.user_id
 	WHERE 
-		attendances.schedule_id = ?`, scheduleId)
+		attendances.schedule_id = ? 
+	ORDER BY
+		attendances.updated_at DESC
+	LIMIT 10 OFFSET ?`, scheduleId, offset)
 	if err_users != nil {
 		return hasil, err_users
 	}
@@ -90,4 +94,22 @@ func (sr *ScheduleRepository) GetSchedule(scheduleId int) (entities.ScheduleResp
 
 	hasil.Attendance = users
 	return hasil, nil
+}
+
+func (sr *ScheduleRepository) GetTotalPage(scheduleId int) (int, error) {
+	var page int
+	result := sr.db.QueryRow(`
+	SELECT
+		count(users.id)
+	FROM
+		users 
+	JOIN
+		attendances ON users.id = attendances.user_id
+	WHERE 
+		attendances.schedule_id = ?`, scheduleId)
+	err_scan := result.Scan(&page)
+	if err_scan != nil {
+		return 0, err_scan
+	}
+	return int((math.Ceil(float64(page) / float64(10)))), nil
 }

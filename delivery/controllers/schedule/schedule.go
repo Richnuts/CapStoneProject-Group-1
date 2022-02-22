@@ -93,25 +93,27 @@ func (sr ScheduleController) GetSchedule(secret string) echo.HandlerFunc {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
+		// getting the page
+		pageString := c.QueryParam("page")
+		halaman, err := strconv.Atoi(pageString)
+		if err != nil {
+			halaman = 1
+		}
+		fmt.Println("halamannya = ", halaman)
+		offset := (halaman - 1) * 10
 		// mengGet schedule
 		var data entities.ScheduleResponse
-		data, err_get := sr.repository.GetSchedule(scheduleId)
+		data, err_get := sr.repository.GetSchedule(scheduleId, offset)
 		if err_get != nil {
 			return c.JSON(http.StatusBadRequest, common.InternalServerError())
 		}
+		// menGet total page
+		var err_page error
+		data.TotalPage, err_page = sr.repository.GetTotalPage(scheduleId)
+		if err_page != nil {
+			return c.JSON(http.StatusBadRequest, common.InternalServerError())
+		}
+
 		return c.JSON(http.StatusOK, data)
 	}
 }
-
-// gmt := time.FixedZone("gmt+7", +7*60*60)
-// end := time.Now().In(gmt)
-// fmt.Println("ini end = ", end)
-// start := time.Date(2022, 2, 27, 0, 0, 0, 0, gmt)
-// diff := start.Sub(end)
-// fmt.Println("ini start = ", start)
-// fmt.Println("ini end = ", end)
-// fmt.Println("ini diff = ", diff)
-// //time Since
-// fmt.Println(time.Since(start.Add(-time.Hour * 1)))
-// waktucantik := end.Format(time.RFC850)
-// fmt.Println(waktucantik)
