@@ -53,12 +53,13 @@ func (cc CheckController) Checkout(secret string) echo.HandlerFunc {
 		if loginId == 0 {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
-		var CheckinRequest CheckinRequestFormat
+		var CheckoutRequest CheckoutRequestFormat
 		// prosess binding text
-		if err_bind := c.Bind(&CheckinRequest); err_bind != nil {
+		if err_bind := c.Bind(&CheckoutRequest); err_bind != nil {
+			fmt.Println(err_bind)
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
-		err_edit := cc.repository.Checkout(CheckinRequest.Id, loginId)
+		err_edit := cc.repository.Checkout(CheckoutRequest.Id, loginId)
 
 		if err_edit != nil {
 			fmt.Println(err_edit)

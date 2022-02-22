@@ -14,7 +14,8 @@ func New(db *sql.DB) *CheckRepository {
 }
 
 func (cr *CheckRepository) Checkin(attendanceId, userId int, temperature float64, status string) error {
-	result, err := cr.db.Exec("UPDATE attendances SET check_in = now(), check_temperature = ?, check_status= ? WHERE id = ? AND user_id = ? AND check_in is NULL", temperature, status, attendanceId, userId)
+	result, err := cr.db.Exec("UPDATE attendances SET check_in = now(), check_temperature = ?, check_status= ? WHERE id = ? AND user_id = ? AND status = ? AND check_in is NULL ", temperature, status, attendanceId, userId, "Approved")
+	fmt.Println(temperature, status, attendanceId, userId)
 	if err != nil {
 		return err
 	}
@@ -26,7 +27,7 @@ func (cr *CheckRepository) Checkin(attendanceId, userId int, temperature float64
 }
 
 func (cr *CheckRepository) Checkout(attendanceId, userId int) error {
-	result, err := cr.db.Exec("UPDATE attendances SET check_out = now() WHERE id = ? AND user_id = ? AND check_out is NULL", attendanceId, userId)
+	result, err := cr.db.Exec("UPDATE attendances SET check_out = now() WHERE id = ? AND user_id = ? AND status = ? AND check_in is NOT NULL AND check_out is NULL", attendanceId, userId, "Approved")
 	if err != nil {
 		return err
 	}
