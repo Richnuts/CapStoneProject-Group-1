@@ -3,7 +3,6 @@ package checkinandout
 import (
 	"database/sql"
 	"fmt"
-	"sirclo/entities"
 )
 
 type CheckRepository struct {
@@ -14,26 +13,26 @@ func New(db *sql.DB) *CheckRepository {
 	return &CheckRepository{db: db}
 }
 
-func (cr *CheckRepository) Checkin(attendance entities.CheckinAndOutResponseFormat) error {
-	result, err := cr.db.Exec("UPDATE attendances SET check_in = ?, check_temperature = ?, updated_at = now() WHERE id = ? AND deleted_at IS null", attendance.Checkin, attendance.CheckTemperature, attendance.User.Id)
+func (cr *CheckRepository) Checkin(attendanceId, userId int, temperature float64, status string) error {
+	result, err := cr.db.Exec("UPDATE attendances SET check_in = now(), check_temperature = ?, check_status= ? WHERE id = ? AND user_id = ? AND check_in is NULL", temperature, status, attendanceId, userId)
 	if err != nil {
 		return err
 	}
 	mengubah, _ := result.RowsAffected()
 	if mengubah == 0 {
-		return fmt.Errorf("user not found")
+		return fmt.Errorf("wfo request not found / already checked in")
 	}
 	return nil
 }
 
-func (cr *CheckRepository) Checkout(attendance entities.CheckinAndOutResponseFormat) error {
-	result, err := cr.db.Exec("UPDATE attendances SET check_out = ?, updated_at = now() WHERE id = ? AND deleted_at IS null", attendance.Checkout, attendance.User.Id)
+func (cr *CheckRepository) Checkout(attendanceId, userId int) error {
+	result, err := cr.db.Exec("UPDATE attendances SET check_out = now() WHERE id = ? AND user_id = ? AND check_out is NULL", attendanceId, userId)
 	if err != nil {
 		return err
 	}
 	mengubah, _ := result.RowsAffected()
 	if mengubah == 0 {
-		return fmt.Errorf("user not found")
+		return fmt.Errorf("wfo request not found")
 	}
 	return nil
 }

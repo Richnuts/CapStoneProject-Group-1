@@ -5,9 +5,11 @@ import (
 	"os"
 	"sirclo/config"
 	_authController "sirclo/delivery/controllers/auth"
+	_checkController "sirclo/delivery/controllers/checkinandout"
 	_userController "sirclo/delivery/controllers/user"
 	"sirclo/delivery/router"
 	_authRepo "sirclo/repository/auth"
+	_checkRepo "sirclo/repository/checkinandout"
 	_userRepo "sirclo/repository/user"
 	"sirclo/util"
 
@@ -30,10 +32,12 @@ func main() {
 	//initiate user model
 	userRepo := _userRepo.New(db)
 	authRepo := _authRepo.New(db)
+	checkRepo := _checkRepo.New(db)
 
 	//initiate user controller
 	userController := _userController.New(userRepo)
 	authController := _authController.New(authRepo)
+	checkController := _checkController.New(checkRepo)
 
 	//create echo http
 	e := echo.New()
@@ -42,6 +46,7 @@ func main() {
 	router.RegisterPath(e,
 		userController,
 		authController,
+		checkController,
 		secret,
 	)
 	// run server

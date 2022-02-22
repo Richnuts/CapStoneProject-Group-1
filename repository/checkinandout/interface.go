@@ -1,10 +1,6 @@
 package checkinandout
 
-import (
-	"sirclo/entities"
-)
-
 type CheckinAndOut interface {
-	Checkin(check entities.CheckinAndOutResponseFormat) error
-	Checkout(check entities.CheckinAndOutResponseFormat) error
+	Checkin(attendanceId, userId int, temperature float64, status string) error
+	Checkout(attendanceId, userId int) error
 }

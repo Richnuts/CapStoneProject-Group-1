@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 	"sirclo/delivery/controllers/auth"
+	"sirclo/delivery/controllers/checkinandout"
 	"sirclo/delivery/controllers/user"
 	"sirclo/delivery/middlewares"
 
@@ -14,6 +15,7 @@ func RegisterPath(
 	e *echo.Echo,
 	userController *user.UserController,
 	authController *auth.AuthController,
+	checkController *checkinandout.CheckController,
 	secret string,
 ) {
 	// logger
@@ -31,4 +33,7 @@ func RegisterPath(
 	e.GET("/users/:id", userController.GetUser(secret), middlewares.JWTMiddleware())
 	e.DELETE("/users/:id", userController.DeleteUser(secret), middlewares.JWTMiddleware())
 	e.PUT("/users/:id", userController.EditUser(secret), middlewares.JWTMiddleware())
+	//check in and out
+	e.PUT("/checkin", checkController.Checkin(secret), middlewares.JWTMiddleware())
+	e.PUT("/checkout", checkController.Checkout(secret), middlewares.JWTMiddleware())
 }
