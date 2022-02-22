@@ -18,13 +18,11 @@ func (ur *UserRepository) GetUser(id int) (entities.UserResponseFormat, error) {
 	var user entities.UserResponseFormat
 	result, err := ur.db.Query(`
 	SELECT
-		users.id, users.name, users.email, users.image_url, users.nik, offices.Id, offices.Name, user_certificate_details.status
+		users.id, users.name, users.email, users.image_url, users.nik, offices.Name, users.vaccine_status
 	FROM
 		users 
 	JOIN
 		offices ON users.office_id = offices.id
-	JOIN
-		user_certificate_details ON users.id = user_certificate_details.id
 	WHERE 
 		users.id = ? and deleted_at IS null`, id)
 	if err != nil {
@@ -32,7 +30,7 @@ func (ur *UserRepository) GetUser(id int) (entities.UserResponseFormat, error) {
 	}
 	defer result.Close()
 	for result.Next() {
-		err := result.Scan(&user.Id, &user.Name, &user.Email, &user.ImageUrl, &user.Nik, &user.Office.Id, &user.Office.Name, &user.VaccineStatus)
+		err := result.Scan(&user.Id, &user.Name, &user.Email, &user.ImageUrl, &user.Nik, &user.Office, &user.VaccineStatus)
 		if err != nil {
 			return user, err
 		}
