@@ -5,10 +5,13 @@ import (
 	"os"
 	"sirclo/config"
 	_authController "sirclo/delivery/controllers/auth"
+	_officeController "sirclo/delivery/controllers/office"
 	_scheduleController "sirclo/delivery/controllers/schedule"
 	_userController "sirclo/delivery/controllers/user"
+	
 	"sirclo/delivery/router"
 	_authRepo "sirclo/repository/auth"
+	_officeRepo "sirclo/repository/office"
 	_scheduleRepo "sirclo/repository/schedule"
 	_userRepo "sirclo/repository/user"
 	"sirclo/util"
@@ -33,11 +36,13 @@ func main() {
 	userRepo := _userRepo.New(db)
 	authRepo := _authRepo.New(db)
 	scheduleRepo := _scheduleRepo.New(db)
+	officeRepo := _officeRepo.New(db)
 
 	//initiate user controller
 	userController := _userController.New(userRepo)
 	authController := _authController.New(authRepo)
 	scheduleController := _scheduleController.New(scheduleRepo)
+	officeController := _officeController.New(officeRepo)
 	//create echo http
 	e := echo.New()
 
@@ -46,6 +51,7 @@ func main() {
 		userController,
 		authController,
 		scheduleController,
+		officeController,
 		secret,
 	)
 	// run server
