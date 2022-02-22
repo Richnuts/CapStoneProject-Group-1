@@ -36,4 +36,5 @@ func RegisterPath(
 	// schedule
 	e.POST("/schedule", scheduleController.CreateSchedule(secret), middlewares.JWTMiddleware())
 	e.PUT("/schedule", scheduleController.EditSchedule(secret), middlewares.JWTMiddleware())
+	e.GET("/schedule/:id", scheduleController.GetSchedule(secret), middlewares.JWTMiddleware())
 }

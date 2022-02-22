@@ -21,7 +21,7 @@ func UploadImage(path string, fileName string, fileData multipart.File) (string,
 	// Upload the file to S3.
 	result, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(os.Getenv("AWS_Bucket")),
-		Key:    aws.String(path + "/" + fileName),
+		Key:    aws.String(path + "/" + fileName + ".jpeg"),
 		Body:   fileData,
 	})
 

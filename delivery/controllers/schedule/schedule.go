@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"sirclo/delivery/common"
 	"sirclo/delivery/middlewares"
+	"sirclo/entities"
 	scheduleRepo "sirclo/repository/schedule"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -76,6 +78,28 @@ func (sr ScheduleController) EditSchedule(secret string) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("berhasil mengedit jadwal"))
+	}
+}
+
+func (sr ScheduleController) GetSchedule(secret string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// check token
+		loginId := middlewares.GetUserId(secret, c)
+		if loginId == 0 {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// getting the id
+		scheduleId, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, common.BadRequest())
+		}
+		// mengGet schedule
+		var data entities.ScheduleResponse
+		data, err_get := sr.repository.GetSchedule(scheduleId)
+		if err_get != nil {
+			return c.JSON(http.StatusBadRequest, common.InternalServerError())
+		}
+		return c.JSON(http.StatusOK, data)
 	}
 }
 

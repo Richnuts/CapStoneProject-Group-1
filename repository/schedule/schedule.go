@@ -3,6 +3,7 @@ package schedule
 import (
 	"database/sql"
 	"fmt"
+	"sirclo/entities"
 	"time"
 )
 
@@ -45,4 +46,48 @@ func (sr *ScheduleRepository) EditSchedule(date string, capacity int, officeId i
 		return fmt.Errorf("schedule not found")
 	}
 	return nil
+}
+
+func (sr *ScheduleRepository) GetSchedule(scheduleId int) (entities.ScheduleResponse, error) {
+	var hasil entities.ScheduleResponse
+	var users []entities.UserResponseFormat
+	result1, err_users := sr.db.Query(`
+	SELECT
+		users.id, users.name, users.email, users.image_url, users.nik, offices.Name, users.vaccine_status
+	FROM
+		users 
+	JOIN
+		offices ON users.office_id = offices.id
+	JOIN
+		attendances ON users.id = attendances.user_id
+	WHERE 
+		attendances.schedule_id = ?`, scheduleId)
+	if err_users != nil {
+		return hasil, err_users
+	}
+	defer result1.Close()
+	for result1.Next() {
+		var user entities.UserResponseFormat
+		err := result1.Scan(&user.Id, &user.Name, &user.Email, &user.ImageUrl, &user.Nik, &user.Office, &user.VaccineStatus)
+		if err != nil {
+			return hasil, err
+		}
+		users = append(users, user)
+	}
+	result2 := sr.db.QueryRow(`
+	SELECT
+		schedules.id, schedules.date, schedules.total_capacity, schedules.capacity, offices.name
+	FROM
+		schedules
+	JOIN
+		offices ON schedules.office_id = offices.id
+	WHERE
+		schedules.id = ?`, scheduleId)
+	err_scan := result2.Scan(&hasil.Id, &hasil.Date, &hasil.TotalCapacity, &hasil.Capacity, &hasil.Office)
+	if err_scan != nil {
+		return hasil, err_scan
+	}
+
+	hasil.Attendance = users
+	return hasil, nil
 }
