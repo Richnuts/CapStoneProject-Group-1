@@ -37,8 +37,8 @@ func (sr *ScheduleRepository) CreateSchedule(month time.Month, year int, capacit
 	return nil
 }
 
-func (sr *ScheduleRepository) EditSchedule(date string, capacity int, officeId int) error {
-	result, err := sr.db.Exec("UPDATE schedules SET total_capacity = ? WHERE date = ? AND office_id = ?", capacity, date, officeId)
+func (sr *ScheduleRepository) EditSchedule(scheduleId string, capacity int) error {
+	result, err := sr.db.Exec("UPDATE schedules SET total_capacity = ? WHERE id = ?", capacity, scheduleId)
 	if err != nil {
 		return err
 	}

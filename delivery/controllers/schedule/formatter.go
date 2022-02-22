@@ -10,7 +10,5 @@ type ScheduleRequestFormat struct {
 }
 
 type ScheduleEditFormat struct {
-	Date          string `json:"date" form:"date"`
-	TotalCapacity int    `json:"total_capacity" form:"total_capacity"`
-	OfficeId      int    `json:"office_id" form:"office_id"`
+	TotalCapacity int `json:"total_capacity" form:"total_capacity"`
 }

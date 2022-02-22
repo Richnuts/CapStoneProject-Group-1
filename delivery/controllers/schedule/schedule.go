@@ -65,6 +65,11 @@ func (sr ScheduleController) EditSchedule(secret string) echo.HandlerFunc {
 		if role != "admin" {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
+		// getting the id
+		scheduleId, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, common.BadRequest())
+		}
 		var scheduleEdit ScheduleEditFormat
 		// prosess binding text
 		if err_bind := c.Bind(&scheduleEdit); err_bind != nil {
@@ -72,7 +77,7 @@ func (sr ScheduleController) EditSchedule(secret string) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
 		// mengedit schedule
-		err_edit := sr.repository.EditSchedule(scheduleEdit.Date, scheduleEdit.TotalCapacity, scheduleEdit.OfficeId)
+		err_edit := sr.repository.EditSchedule(scheduleId, scheduleEdit.TotalCapacity)
 		if err_edit != nil {
 			fmt.Println(err_edit)
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
