@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 	"sirclo/delivery/controllers/auth"
+	"sirclo/delivery/controllers/checkinandout"
 	"sirclo/delivery/controllers/office"
 	"sirclo/delivery/controllers/schedule"
 	"sirclo/delivery/controllers/user"
@@ -18,6 +19,7 @@ func RegisterPath(
 	authController *auth.AuthController,
 	scheduleController *schedule.ScheduleController,
 	officeController *office.OfficeController,
+	checkController *checkinandout.CheckController,
 	secret string,
 ) {
 	// logger
@@ -37,10 +39,13 @@ func RegisterPath(
 	e.PUT("/users/:id", userController.EditUser(secret), middlewares.JWTMiddleware())
 	// schedule
 	e.POST("/schedules", scheduleController.CreateSchedule(secret), middlewares.JWTMiddleware())
-	e.PUT("/schedules", scheduleController.EditSchedule(secret), middlewares.JWTMiddleware())
+  e.PUT("/schedules/:id", scheduleController.EditSchedule(secret), middlewares.JWTMiddleware())
 	e.GET("/schedules/:id", scheduleController.GetSchedule(secret), middlewares.JWTMiddleware())
 	e.GET("/schedules", scheduleController.GetSchedulesByMonthAndYear(secret), middlewares.JWTMiddleware())
 	// office
 	e.GET("/offices", officeController.GetOffices(secret), middlewares.JWTMiddleware())
-	e.GET("/office/:id", officeController.GetOffice(secret), middlewares.JWTMiddleware())
+	e.GET("/offices/:id", officeController.GetOffice(secret), middlewares.JWTMiddleware())
+	//check in and out
+	e.PUT("/checkin", checkController.Checkin(secret), middlewares.JWTMiddleware())
+	e.PUT("/checkout", checkController.Checkout(secret), middlewares.JWTMiddleware())
 }

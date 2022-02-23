@@ -37,8 +37,8 @@ func (sr *ScheduleRepository) CreateSchedule(month time.Month, year int, capacit
 	return nil
 }
 
-func (sr *ScheduleRepository) EditSchedule(date string, capacity int, officeId int) error {
-	result, err := sr.db.Exec("UPDATE schedules SET total_capacity = ? WHERE date = ? AND office_id = ?", capacity, date, officeId)
+func (sr *ScheduleRepository) EditSchedule(scheduleId int, capacity int) error {
+	result, err := sr.db.Exec("UPDATE schedules SET total_capacity = ? WHERE id = ?", capacity, scheduleId)
 	if err != nil {
 		return err
 	}
@@ -62,10 +62,10 @@ func (sr *ScheduleRepository) GetSchedule(scheduleId int, offset int) (entities.
 	JOIN
 		attendances ON users.id = attendances.user_id
 	WHERE 
-		attendances.schedule_id = ? 
+		attendances.schedule_id = ? AND attendances.status = ?
 	ORDER BY
 		attendances.updated_at DESC
-	LIMIT 10 OFFSET ?`, scheduleId, offset)
+	LIMIT 10 OFFSET ?`, scheduleId, "approved", offset)
 	if err_users != nil {
 		return hasil, err_users
 	}
