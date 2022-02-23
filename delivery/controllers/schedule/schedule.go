@@ -117,3 +117,32 @@ func (sr ScheduleController) GetSchedule(secret string) echo.HandlerFunc {
 		return c.JSON(http.StatusOK, data)
 	}
 }
+
+func (sr ScheduleController) GetSchedulesByMonthAndYear(secret string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// check token
+		loginId := middlewares.GetUserId(secret, c)
+		if loginId == 0 {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// getting the month
+		monthString := c.QueryParam("month")
+		month, err := strconv.Atoi(monthString)
+		if err != nil {
+			return c.JSON(http.StatusForbidden, common.CustomResponse(400, "masukin woi bulannya", "bulan gaboleh kosong"))
+		}
+		// getting the year
+		yearString := c.QueryParam("year")
+		year, err := strconv.Atoi(yearString)
+		if err != nil {
+			return c.JSON(http.StatusForbidden, common.CustomResponse(400, "masukin woi tahunnya", "tahun gaboleh kosong"))
+		}
+		// mengGet schedule
+		var data []string
+		data, err_get := sr.repository.GetSchedulesByMonthAndYear(month, year)
+		if err_get != nil {
+			return c.JSON(http.StatusBadRequest, common.InternalServerError())
+		}
+		return c.JSON(http.StatusOK, data)
+	}
+}

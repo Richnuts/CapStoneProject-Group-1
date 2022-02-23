@@ -10,4 +10,5 @@ type Schedule interface {
 	EditSchedule(date string, capacity int, officeId int) error
 	GetSchedule(scheduleId int, offset int) (entities.ScheduleResponse, error)
 	GetTotalPage(scheduleId int) (int, error)
+	GetSchedulesByMonthAndYear(month int, year int) ([]string, error)
 }

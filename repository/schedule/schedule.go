@@ -113,3 +113,27 @@ func (sr *ScheduleRepository) GetTotalPage(scheduleId int) (int, error) {
 	}
 	return int((math.Ceil(float64(page) / float64(10)))), nil
 }
+
+func (sr *ScheduleRepository) GetSchedulesByMonthAndYear(month int, year int) ([]string, error) {
+	var hasil []string
+	result, err_users := sr.db.Query(`
+	SELECT
+		date
+	FROM
+		schedules 
+	WHERE 
+		Month(date) = ? AND Year(date) = ?`, month, year)
+	if err_users != nil {
+		return hasil, err_users
+	}
+	defer result.Close()
+	for result.Next() {
+		var data string
+		err := result.Scan(&data)
+		if err != nil {
+			return hasil, err
+		}
+		hasil = append(hasil, data)
+	}
+	return hasil, nil
+}
