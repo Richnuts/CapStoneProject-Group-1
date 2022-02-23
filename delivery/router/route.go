@@ -39,7 +39,7 @@ func RegisterPath(
 	e.PUT("/users/:id", userController.EditUser(secret), middlewares.JWTMiddleware())
 	// schedule
 	e.POST("/schedules", scheduleController.CreateSchedule(secret), middlewares.JWTMiddleware())
-  e.PUT("/schedules/:id", scheduleController.EditSchedule(secret), middlewares.JWTMiddleware())
+	e.PUT("/schedules/:id", scheduleController.EditSchedule(secret), middlewares.JWTMiddleware())
 	e.GET("/schedules/:id", scheduleController.GetSchedule(secret), middlewares.JWTMiddleware())
 	e.GET("/schedules", scheduleController.GetSchedulesByMonthAndYear(secret), middlewares.JWTMiddleware())
 	// office
