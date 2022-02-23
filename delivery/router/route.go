@@ -36,9 +36,10 @@ func RegisterPath(
 	e.DELETE("/users/:id", userController.DeleteUser(secret), middlewares.JWTMiddleware())
 	e.PUT("/users/:id", userController.EditUser(secret), middlewares.JWTMiddleware())
 	// schedule
-	e.POST("/schedule", scheduleController.CreateSchedule(secret), middlewares.JWTMiddleware())
-	e.PUT("/schedule", scheduleController.EditSchedule(secret), middlewares.JWTMiddleware())
-	e.GET("/schedule/:id", scheduleController.GetSchedule(secret), middlewares.JWTMiddleware())
+	e.POST("/schedules", scheduleController.CreateSchedule(secret), middlewares.JWTMiddleware())
+	e.PUT("/schedules", scheduleController.EditSchedule(secret), middlewares.JWTMiddleware())
+	e.GET("/schedules/:id", scheduleController.GetSchedule(secret), middlewares.JWTMiddleware())
+	e.GET("/schedules", scheduleController.GetSchedulesByMonthAndYear(secret), middlewares.JWTMiddleware())
 	// office
 	e.GET("/offices", officeController.GetOffices(secret), middlewares.JWTMiddleware())
 	e.GET("/office/:id", officeController.GetOffice(secret), middlewares.JWTMiddleware())
