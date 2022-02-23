@@ -39,7 +39,6 @@ func CheckFileExtension(filename string) (string, error) {
 	if extension != "jpg" && extension != "jpeg" && extension != "png" {
 		return "", fmt.Errorf("forbidden file type")
 	}
-
 	return extension, nil
 }
 

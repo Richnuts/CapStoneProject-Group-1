@@ -143,9 +143,9 @@ func (sr ScheduleController) GetSchedulesByMonthAndYear(secret string) echo.Hand
 			return c.JSON(http.StatusForbidden, common.CustomResponse(400, "masukin woi tahunnya", "tahun gaboleh kosong"))
 		}
 		// mengGet schedule
-		var data []string
 		data, err_get := sr.repository.GetSchedulesByMonthAndYear(month, year)
 		if err_get != nil {
+			fmt.Println(err_get)
 			return c.JSON(http.StatusBadRequest, common.InternalServerError())
 		}
 		return c.JSON(http.StatusOK, data)
