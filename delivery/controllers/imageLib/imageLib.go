@@ -28,8 +28,6 @@ func UploadImage(path string, fileName string, fileData multipart.File) (string,
 	if err != nil {
 		return "", fmt.Errorf("failed to upload file, %v", err)
 	}
-
-	fmt.Println("file uploaded to ", result.Location)
 	return result.Location, nil
 }
 

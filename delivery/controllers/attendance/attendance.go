@@ -1,7 +1,6 @@
 package attendance
 
 import (
-	"fmt"
 	"net/http"
 	"sirclo/delivery/common"
 	"sirclo/delivery/controllers/imageLib"
@@ -63,10 +62,8 @@ func (ac AttendanceController) CreateAttendance(secret string) echo.HandlerFunc 
 		}
 		err_create := ac.repository.CreateAttendance(loginId, attendanceRequest.ScheduleId, attendanceRequest.Description, theUrl)
 		if err_create != nil {
-			fmt.Println(err_create)
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "Failed Creating Entity in database"))
 		}
-		fmt.Println(theUrl)
 		return c.JSON(http.StatusOK, common.CustomResponse(200, "operation success", "berhasil membuat request WFO"))
 	}
 }
