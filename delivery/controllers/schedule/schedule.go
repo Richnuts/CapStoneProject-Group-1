@@ -1,7 +1,6 @@
 package schedule
 
 import (
-	"fmt"
 	"net/http"
 	"sirclo/delivery/common"
 	"sirclo/delivery/middlewares"
@@ -42,11 +41,9 @@ func (sr ScheduleController) CreateSchedule(secret string) echo.HandlerFunc {
 		if scheduleRequest.TotalCapacity == 0 {
 			scheduleRequest.TotalCapacity = 50
 		}
-		fmt.Println(scheduleRequest)
 		// create schedule
 		err_schedule := sr.repository.CreateSchedule(scheduleRequest.Month, scheduleRequest.Year, scheduleRequest.TotalCapacity, scheduleRequest.OfficeId)
 		if err_schedule != nil {
-			fmt.Println(err_schedule)
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "failed creating schedule", "duplicate entry"))
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("berhasil membuat jadwal"))
@@ -73,13 +70,11 @@ func (sr ScheduleController) EditSchedule(secret string) echo.HandlerFunc {
 		var scheduleEdit ScheduleEditFormat
 		// prosess binding text
 		if err_bind := c.Bind(&scheduleEdit); err_bind != nil {
-			fmt.Println(err_bind)
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
 		// mengedit schedule
 		err_edit := sr.repository.EditSchedule(scheduleId, scheduleEdit.TotalCapacity)
 		if err_edit != nil {
-			fmt.Println(err_edit)
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("berhasil mengedit jadwal"))
@@ -104,7 +99,6 @@ func (sr ScheduleController) GetSchedule(secret string) echo.HandlerFunc {
 		if err != nil {
 			halaman = 1
 		}
-		fmt.Println("halamannya = ", halaman)
 		offset := (halaman - 1) * 10
 		// mengGet schedule
 		var data entities.ScheduleResponse
@@ -142,9 +136,13 @@ func (sr ScheduleController) GetSchedulesByMonthAndYear(secret string) echo.Hand
 		if err != nil {
 			return c.JSON(http.StatusForbidden, common.CustomResponse(400, "masukin woi tahunnya", "tahun gaboleh kosong"))
 		}
+		// getting the year
+		officeId, err := strconv.Atoi(c.QueryParam("office"))
+		if err != nil {
+			return c.JSON(http.StatusForbidden, common.CustomResponse(400, "masukin woi officenya", "office gaboleh kosong"))
+		}
 		// mengGet schedule
-		var data []string
-		data, err_get := sr.repository.GetSchedulesByMonthAndYear(month, year)
+		data, err_get := sr.repository.GetSchedulesByMonthAndYear(month, year, officeId)
 		if err_get != nil {
 			return c.JSON(http.StatusBadRequest, common.InternalServerError())
 		}

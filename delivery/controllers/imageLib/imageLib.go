@@ -28,8 +28,6 @@ func UploadImage(path string, fileName string, fileData multipart.File) (string,
 	if err != nil {
 		return "", fmt.Errorf("failed to upload file, %v", err)
 	}
-
-	fmt.Println("file uploaded to ", result.Location)
 	return result.Location, nil
 }
 
@@ -39,7 +37,6 @@ func CheckFileExtension(filename string) (string, error) {
 	if extension != "jpg" && extension != "jpeg" && extension != "png" {
 		return "", fmt.Errorf("forbidden file type")
 	}
-
 	return extension, nil
 }
 
