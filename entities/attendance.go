@@ -1,31 +1,18 @@
 package entities
 
 type Attendance struct {
-	Id               int `json:"id" form:"id"`
-	Schedule         Schedule
-	User             User
-	Admin            User
-	ImageUrl         string  `json:"image_url" form:"image_url"`
-	Description      int     `json:"description" form:"description"`
-	Status           int     `json:"status" form:"status"`
-	StatusInfo       int     `json:"statusinfo" form:"statusinfo"`
-	Checkin          string  `json:"checkin" form:"checkin"`
-	Checkout         string  `json:"checkout" form:"checkout"`
-	CheckTemperature float64 `json:"checktemperature" form:"checktemperature"`
-	CheckStatus      string  `json:"checkstatus" form:"checkstatus"`
+	Id          int    `json:"id" form:"id"`
+	ScheduleId  int    `json:"schedule" form:"schedule"`
+	UserId      int    `json:"user" form:"user"`
+	AdminId     int    `json:"admin" form:"admin"`
+	ImageUrl    string `json:"image_url" form:"image_url"`
+	Description int    `json:"description" form:"description"`
+	Status      int    `json:"status" form:"status"`
+	StatusInfo  int    `json:"statusinfo" form:"statusinfo"`
 }
 
-type CheckinAndOutResponseFormat struct {
-	Id               int `json:"id" form:"id"`
-	Schedule         Schedule
-	User             User
-	Admin            User
-	ImageUrl         string  `json:"image_url" form:"image_url"`
-	Description      int     `json:"description" form:"description"`
-	Status           int     `json:"status" form:"status"`
-	StatusInfo       int     `json:"statusinfo" form:"statusinfo"`
-	Checkin          string  `json:"checkin" form:"checkin"`
-	Checkout         string  `json:"checkout" form:"checkout"`
-	CheckTemperature float64 `json:"checktemperature" form:"checktemperature"`
-	CheckStatus      string  `json:"checkstatus" form:"checkstatus"`
+type PendingAttendance struct {
+	User        User   `json:"user_id" form:"user_id"`
+	ImageUrl    string `json:"image_url" form:"image_url"`
+	Description string `json:"description" form:"description"`
 }

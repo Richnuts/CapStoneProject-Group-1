@@ -38,6 +38,11 @@ func (ac AttendanceController) CreateAttendance(secret string) echo.HandlerFunc 
 		if err_checking != nil {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "request telah ada"))
 		}
+		// check user status vaksin
+		err_vaccine := ac.repository.GetUserVaccineStatus(loginId)
+		if err_vaccine != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "user belum vaccine"))
+		}
 		// proses binding image
 		fileData, fileInfo, err_binding_image := c.Request().FormFile("image")
 		if err_binding_image != nil {

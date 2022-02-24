@@ -112,7 +112,7 @@ func (sr *ScheduleRepository) GetTotalPage(scheduleId int) (int, error) {
 	return int((math.Ceil(float64(page) / float64(10)))), nil
 }
 
-func (sr *ScheduleRepository) GetSchedulesByMonthAndYear(month int, year int) ([]entities.Schedule, error) {
+func (sr *ScheduleRepository) GetSchedulesByMonthAndYear(month int, year int, officeId int) ([]entities.Schedule, error) {
 	var hasil []entities.Schedule
 	result, err_users := sr.db.Query(`
 	SELECT
@@ -120,7 +120,7 @@ func (sr *ScheduleRepository) GetSchedulesByMonthAndYear(month int, year int) ([
 	FROM
 		schedules 
 	WHERE 
-		Month(date) = ? AND Year(date) = ?`, month, year)
+		Month(date) = ? AND Year(date) = ? AND office_id = ?`, month, year, officeId)
 	if err_users != nil {
 		return hasil, err_users
 	}

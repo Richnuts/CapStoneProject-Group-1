@@ -26,7 +26,7 @@ func (ar AttendanceRepository) CreateAttendance(userId int, scheduleId int, desc
 }
 
 func (ar AttendanceRepository) GetUserAttendanceStatus(userId int, scheduleId int) error {
-	result, err := ar.db.Query("SELECT id FROM attendances WHERE status != ? AND user_id = ? AND schedule_id = ?", "rejected", userId, scheduleId)
+	result, err := ar.db.Query("SELECT id FROM attendances WHERE status != ? AND user_id = ? AND schedule_id = ?", "Rejected", userId, scheduleId)
 	if err != nil {
 		return err
 	}
@@ -35,4 +35,22 @@ func (ar AttendanceRepository) GetUserAttendanceStatus(userId int, scheduleId in
 		return fmt.Errorf("request sudah ada")
 	}
 	return nil
+}
+
+func (ar AttendanceRepository) GetUserVaccineStatus(userId int) error {
+	result, err := ar.db.Query(`
+	SELECT 
+		id
+	FROM 
+		users
+	WHERE 
+		id = ? AND vaccine_status = ?`, userId, "Approved")
+	if err != nil {
+		return err
+	}
+	defer result.Close()
+	for result.Next() {
+		return nil
+	}
+	return fmt.Errorf("user belom vaksin")
 }

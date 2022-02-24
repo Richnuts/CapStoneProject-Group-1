@@ -136,8 +136,13 @@ func (sr ScheduleController) GetSchedulesByMonthAndYear(secret string) echo.Hand
 		if err != nil {
 			return c.JSON(http.StatusForbidden, common.CustomResponse(400, "masukin woi tahunnya", "tahun gaboleh kosong"))
 		}
+		// getting the year
+		officeId, err := strconv.Atoi(c.QueryParam("office"))
+		if err != nil {
+			return c.JSON(http.StatusForbidden, common.CustomResponse(400, "masukin woi officenya", "office gaboleh kosong"))
+		}
 		// mengGet schedule
-		data, err_get := sr.repository.GetSchedulesByMonthAndYear(month, year)
+		data, err_get := sr.repository.GetSchedulesByMonthAndYear(month, year, officeId)
 		if err_get != nil {
 			return c.JSON(http.StatusBadRequest, common.InternalServerError())
 		}
