@@ -1,10 +1,11 @@
 package entities
 
 type Schedule struct {
-	Id            int `json:"id" form:"id"`
-	TotalCapacity int `json:"total_capacity" form:"total_capacity"`
-	Capacity      int `json:"capacity" form:"capacity"`
-	OfficeId      int `json:"office" form:"office"`
+	Id            int    `json:"id" form:"id"`
+	TotalCapacity int    `json:"total_capacity" form:"total_capacity"`
+	Capacity      int    `json:"capacity" form:"capacity"`
+	OfficeId      int    `json:"office" form:"office"`
+	Date          string `json:"time" form:"time"`
 }
 
 type ScheduleResponse struct {

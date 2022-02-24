@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"sirclo/config"
+	_attendanceController "sirclo/delivery/controllers/attendance"
 	_authController "sirclo/delivery/controllers/auth"
 	_certificateController "sirclo/delivery/controllers/certificate"
 	_checkController "sirclo/delivery/controllers/checkinandout"
@@ -12,6 +13,7 @@ import (
 	_userController "sirclo/delivery/controllers/user"
 
 	"sirclo/delivery/router"
+	_attendanceRepo "sirclo/repository/attendance"
 	_authRepo "sirclo/repository/auth"
 	_certificateRepo "sirclo/repository/certificate"
 	_checkRepo "sirclo/repository/checkinandout"
@@ -43,6 +45,7 @@ func main() {
 	officeRepo := _officeRepo.New(db)
 	checkRepo := _checkRepo.New(db)
 	certificateRepo := _certificateRepo.New(db)
+	attendanceRepo := _attendanceRepo.New(db)
 
 	//initiate user controller
 	userController := _userController.New(userRepo)
@@ -51,6 +54,8 @@ func main() {
 	officeController := _officeController.New(officeRepo)
 	checkController := _checkController.New(checkRepo)
 	certificateController := _certificateController.New(certificateRepo)
+	attendanceController := _attendanceController.New(attendanceRepo)
+
 	//create echo http
 	e := echo.New()
 
@@ -62,6 +67,7 @@ func main() {
 		officeController,
 		checkController,
 		certificateController,
+		attendanceController,
 		secret,
 	)
 	// run server
