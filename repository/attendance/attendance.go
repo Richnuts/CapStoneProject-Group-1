@@ -3,6 +3,8 @@ package attendance
 import (
 	"database/sql"
 	"fmt"
+	"math"
+	"sirclo/entities"
 )
 
 type AttendanceRepository struct {
@@ -53,4 +55,208 @@ func (ar AttendanceRepository) GetUserVaccineStatus(userId int) error {
 		return nil
 	}
 	return fmt.Errorf("user belom vaksin")
+}
+
+func (ar AttendanceRepository) EditAttendance(attendanceId int, adminId int, status string, statusInfo string) error {
+	result, err := ar.db.Exec("UPDATE attendances SET admin_id = ?, status = ?, status_info = ?, updated_at = now() WHERE id = ? AND status = ?", adminId, status, statusInfo, attendanceId, "Pending")
+	if err != nil {
+		return err
+	}
+	mengubah, _ := result.RowsAffected()
+	if mengubah == 0 {
+		return fmt.Errorf("error gagal mengapprove")
+	}
+	return nil
+}
+
+func (ar AttendanceRepository) GetPendingAttendance(offset int) ([]entities.PendingAttendance, error) {
+	var hasilAkhir []entities.PendingAttendance
+	result, err_query := ar.db.Query(`
+	SELECT 
+		attendances.id, schedules.date, attendances.image_url, attendances.description, attendances.created_at, attendances.user_id, users.name, users.email, users.image_url, users.nik, users.vaccine_status, offices.name
+	FROM 
+		attendances 
+	JOIN
+		schedules ON attendances.schedule_id = schedules.id
+	JOIN
+		offices ON schedules.office_id = offices.id 
+	JOIN
+		users ON attendances.user_id = users.id
+	WHERE 
+		attendances.status = ?
+	ORDER BY attendances.created_at ASC
+	LIMIT 10 OFFSET ?`, "Pending", offset)
+	if err_query != nil {
+		return hasilAkhir, fmt.Errorf("request wfo not found")
+	}
+	defer result.Close()
+	for result.Next() {
+		var hasil entities.PendingAttendance
+		err := result.Scan(&hasil.Id, &hasil.Date, &hasil.ImageUrl, &hasil.Description, &hasil.RequestTime, &hasil.User.Id, &hasil.User.Name, &hasil.User.Email, &hasil.User.ImageUrl, &hasil.User.Nik, &hasil.User.VaccineStatus, &hasil.User.Office)
+		if err != nil {
+			return hasilAkhir, err
+		}
+		hasilAkhir = append(hasilAkhir, hasil)
+	}
+	return hasilAkhir, nil
+}
+
+func (ar AttendanceRepository) GetPendingAttendanceTotalPage() (int, error) {
+	var hasil int
+	result := ar.db.QueryRow(`
+	SELECT 
+		count(id)
+	FROM
+		attendances
+	WHERE
+		status = ?`, "Pending")
+	err := result.Scan(&hasil)
+	if err != nil {
+		return hasil, err
+	}
+	return int((math.Ceil(float64(hasil) / float64(10)))), nil
+}
+
+func (ar AttendanceRepository) CheckCapacity(scheduleId int) (int, error) {
+	var hasil int
+	result := ar.db.QueryRow("select (total_capacity - capacity) from schedules where id = ?", scheduleId)
+	err := result.Scan(&hasil)
+	if err != nil {
+		return hasil, err
+	}
+	return hasil, nil
+}
+
+func (ar AttendanceRepository) GetAttendanceById(attendanceId int) (entities.AttendanceGetFormat, error) {
+	var hasil entities.AttendanceGetFormat
+	result := ar.db.QueryRow(`
+	SELECT 
+		attendances.id, users.name, schedules.date, offices.name, attendances.status,  attendances.status_info, (select name from users where id = attendances.admin_id) AS checker, attendances.check_in
+	FROM 
+		attendances 
+	JOIN
+		schedules ON attendances.schedule_id = schedules.id
+	JOIN
+		offices ON schedules.office_id = offices.id 
+	JOIN
+		users ON attendances.user_id = users.id
+	WHERE 
+		attendances.id = ?`, attendanceId)
+	err := result.Scan(&hasil.Id, &hasil.Name, &hasil.Date, &hasil.Office, &hasil.Status, &hasil.StatusInfo, &hasil.AdminName, &hasil.CheckIn)
+	if err != nil {
+		return hasil, err
+	}
+	return hasil, nil
+}
+
+func (ar AttendanceRepository) GetMyAttendance(userId int, offset int, status string) ([]entities.AttendanceGetFormat, error) {
+	var hasilAkhir []entities.AttendanceGetFormat
+	status = "%" + status + "%"
+	result, err_query := ar.db.Query(`
+	SELECT 
+		attendances.id, users.name, schedules.date, offices.name, attendances.status, attendances.status_info, (select name from users where id = attendances.admin_id) AS checker, attendances.check_in, attendances.created_at, attendances.updated_at
+	FROM 
+		attendances 
+	JOIN
+		schedules ON attendances.schedule_id = schedules.id
+	JOIN
+		offices ON schedules.office_id = offices.id 
+	JOIN
+		users ON attendances.user_id = users.id
+	WHERE 
+		user_id = ? AND attendances.status like ? LIMIT 10 OFFSET ?`, userId, status, offset)
+	if err_query != nil {
+		return hasilAkhir, fmt.Errorf("request wfo not found")
+	}
+	defer result.Close()
+	for result.Next() {
+		var hasil entities.AttendanceGetFormat
+		err := result.Scan(&hasil.Id, &hasil.Name, &hasil.Date, &hasil.Office, &hasil.Status, &hasil.StatusInfo, &hasil.AdminName, &hasil.CheckIn, &hasil.RequestTime, &hasil.ApprovedTime)
+		if err != nil {
+			return hasilAkhir, err
+		}
+		hasilAkhir = append(hasilAkhir, hasil)
+	}
+	return hasilAkhir, nil
+}
+
+func (ar AttendanceRepository) GetMyAttendanceTotalPage(userId int, status string) (int, error) {
+	var hasil int
+	status = "%" + status + "%"
+	result := ar.db.QueryRow(`
+	SELECT 
+		count(id)
+	FROM 
+		attendances 
+	WHERE 
+		user_id = ? AND status LIKE ?`, userId, status)
+	err := result.Scan(&hasil)
+	if err != nil {
+		return hasil, err
+	}
+	return int((math.Ceil(float64(hasil) / float64(10)))), nil
+}
+
+func (ar AttendanceRepository) GetMyAttendanceSortByLatest(userId int, offset int, status string) ([]entities.AttendanceGetFormat, error) {
+	var hasilAkhir []entities.AttendanceGetFormat
+	status = "%" + status + "%"
+	result, err_query := ar.db.Query(`
+	SELECT 
+		attendances.id, users.name, schedules.date, offices.name, attendances.status, attendances.status_info, (select name from users where id = attendances.admin_id) AS checker, attendances.check_in, attendances.created_at, attendances.updated_at
+	FROM 
+		attendances 
+	JOIN
+		schedules ON attendances.schedule_id = schedules.id
+	JOIN
+		offices ON schedules.office_id = offices.id 
+	JOIN
+		users ON attendances.user_id = users.id
+	WHERE 
+		user_id = ? AND attendances.status like ?
+	ORDER BY attendances.created_at ASC LIMIT 10 OFFSET ?`, userId, status, offset)
+	if err_query != nil {
+		return hasilAkhir, fmt.Errorf("request wfo not found")
+	}
+	defer result.Close()
+	for result.Next() {
+		var hasil entities.AttendanceGetFormat
+		err := result.Scan(&hasil.Id, &hasil.Name, &hasil.Date, &hasil.Office, &hasil.Status, &hasil.StatusInfo, &hasil.AdminName, &hasil.CheckIn, &hasil.RequestTime, &hasil.ApprovedTime)
+		if err != nil {
+			return hasilAkhir, err
+		}
+		hasilAkhir = append(hasilAkhir, hasil)
+	}
+	return hasilAkhir, nil
+}
+
+func (ar AttendanceRepository) GetMyAttendanceSortByLongest(userId int, offset int, status string) ([]entities.AttendanceGetFormat, error) {
+	var hasilAkhir []entities.AttendanceGetFormat
+	status = "%" + status + "%"
+	result, err_query := ar.db.Query(`
+	SELECT 
+		attendances.id, users.name, schedules.date, offices.name, attendances.status, attendances.status_info, (select name from users where id = attendances.admin_id) AS checker, attendances.check_in, attendances.created_at, attendances.updated_at
+	FROM 
+		attendances 
+	JOIN
+		schedules ON attendances.schedule_id = schedules.id
+	JOIN
+		offices ON schedules.office_id = offices.id 
+	JOIN
+		users ON attendances.user_id = users.id
+	WHERE 
+		user_id = ? AND attendances.status like ? 
+	ORDER BY schedules.date DESC LIMIT 10 OFFSET ?`, userId, status, offset)
+	if err_query != nil {
+		return hasilAkhir, fmt.Errorf("request wfo not found")
+	}
+	defer result.Close()
+	for result.Next() {
+		var hasil entities.AttendanceGetFormat
+		err := result.Scan(&hasil.Id, &hasil.Name, &hasil.Date, &hasil.Office, &hasil.Status, &hasil.StatusInfo, &hasil.AdminName, &hasil.CheckIn, &hasil.RequestTime, &hasil.ApprovedTime)
+		if err != nil {
+			return hasilAkhir, err
+		}
+		hasilAkhir = append(hasilAkhir, hasil)
+	}
+	return hasilAkhir, nil
 }
