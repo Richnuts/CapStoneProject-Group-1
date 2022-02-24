@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"sirclo/delivery/controllers/attendance"
 	"sirclo/delivery/controllers/auth"
 	"sirclo/delivery/controllers/certificate"
 	"sirclo/delivery/controllers/checkinandout"
@@ -22,6 +23,7 @@ func RegisterPath(
 	officeController *office.OfficeController,
 	checkController *checkinandout.CheckController,
 	certificateController *certificate.CertificateController,
+	attendanceController *attendance.AttendanceController,
 	secret string,
 ) {
 	// logger
@@ -43,6 +45,7 @@ func RegisterPath(
 	e.POST("/schedules", scheduleController.CreateSchedule(secret), middlewares.JWTMiddleware())
 	e.PUT("/schedules/:id", scheduleController.EditSchedule(secret), middlewares.JWTMiddleware())
 	e.GET("/schedules/:id", scheduleController.GetSchedule(secret), middlewares.JWTMiddleware())
+	e.GET("/schedules", scheduleController.GetSchedulesByMonthAndYear(secret), middlewares.JWTMiddleware())
 	// office
 	e.GET("/offices", officeController.GetOffices(secret), middlewares.JWTMiddleware())
 	e.GET("/offices/:id", officeController.GetOffice(secret), middlewares.JWTMiddleware())
@@ -50,6 +53,7 @@ func RegisterPath(
 	e.GET("/check/:id", checkController.GetCheckById(secret), middlewares.JWTMiddleware())
 	e.PUT("/checkin", checkController.Checkin(secret), middlewares.JWTMiddleware())
 	e.PUT("/checkout", checkController.Checkout(secret), middlewares.JWTMiddleware())
+
 	//certificate
 	e.GET("/mycertificates", certificateController.GetMyCertificate(secret), middlewares.JWTMiddleware())
 	e.GET("/certificates", certificateController.GetUsersCertificates(secret), middlewares.JWTMiddleware())
@@ -57,4 +61,13 @@ func RegisterPath(
 	e.POST("/certificates", certificateController.CreateCertificate(secret), middlewares.JWTMiddleware())
 	e.PUT("/certificates/:id", certificateController.EditCertificate(secret), middlewares.JWTMiddleware())
 	e.PUT("/mycertificates/:id", certificateController.EditMyCertificate(secret), middlewares.JWTMiddleware())
+
+	// attendance
+	e.POST("/attendances", attendanceController.CreateAttendance(secret), middlewares.JWTMiddleware())
+	e.PUT("/attendances/:id", attendanceController.EditAttendance(secret), middlewares.JWTMiddleware())
+	e.GET("/attendances/:id", attendanceController.GetAttendanceById(secret), middlewares.JWTMiddleware())
+	e.GET("/myattendances", attendanceController.GetMyAttendance(secret), middlewares.JWTMiddleware())
+	e.GET("/mylatestattendances", attendanceController.GetMyAttendanceSortByLatest(secret), middlewares.JWTMiddleware())
+	e.GET("/mylongestattendances", attendanceController.GetMyAttendanceSortByLongest(secret), middlewares.JWTMiddleware())
+	e.GET("/pendingattendances", attendanceController.GetPendingAttendance(secret), middlewares.JWTMiddleware())
 }

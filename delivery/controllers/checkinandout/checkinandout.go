@@ -45,7 +45,6 @@ func (cc CheckController) Checkin(secret string) echo.HandlerFunc {
 		}
 		err_edit := cc.repository.Checkin(CheckinRequest.Id, loginId, CheckinRequest.Temperature, status)
 		if err_edit != nil {
-			fmt.Println(err_edit)
 			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("check in success"))
@@ -62,13 +61,11 @@ func (cc CheckController) Checkout(secret string) echo.HandlerFunc {
 		var CheckoutRequest CheckoutRequestFormat
 		// prosess binding text
 		if err_bind := c.Bind(&CheckoutRequest); err_bind != nil {
-			fmt.Println(err_bind)
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
 		err_edit := cc.repository.Checkout(CheckoutRequest.Id, loginId)
 
 		if err_edit != nil {
-			fmt.Println(err_edit)
 			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("check out success"))

@@ -20,11 +20,9 @@ func (sr *ScheduleRepository) CreateSchedule(month time.Month, year int, capacit
 	gmt := time.FixedZone("gmt+7", +7*60*60)
 	day := 1
 	start := time.Date(year, month, day, 0, 0, 0, 0, gmt)
-	start_end := time.Date(year, month+1, day, 0, 0, 0, 0, gmt)
+	start_end := start.AddDate(0, 1, 0)
 	for start != start_end {
-		day = day + 1
-		start = time.Date(year, month, day, 0, 0, 0, 0, gmt)
-		month = start.Month()
+		start = start.AddDate(0, 0, 1)
 		result, err := sr.db.Exec("INSERT INTO schedules (office_id, total_capacity, date) VALUES (?, ?, ?)", officeId, capacity, start)
 		if err != nil {
 			return err
@@ -112,4 +110,28 @@ func (sr *ScheduleRepository) GetTotalPage(scheduleId int) (int, error) {
 		return 0, err_scan
 	}
 	return int((math.Ceil(float64(page) / float64(10)))), nil
+}
+
+func (sr *ScheduleRepository) GetSchedulesByMonthAndYear(month int, year int, officeId int) ([]entities.Schedule, error) {
+	var hasil []entities.Schedule
+	result, err_users := sr.db.Query(`
+	SELECT
+		id, date, office_id, total_capacity, capacity
+	FROM
+		schedules 
+	WHERE 
+		Month(date) = ? AND Year(date) = ? AND office_id = ?`, month, year, officeId)
+	if err_users != nil {
+		return hasil, err_users
+	}
+	defer result.Close()
+	for result.Next() {
+		var data entities.Schedule
+		err := result.Scan(&data.Id, &data.Date, &data.OfficeId, &data.TotalCapacity, &data.Capacity)
+		if err != nil {
+			return hasil, err
+		}
+		hasil = append(hasil, data)
+	}
+	return hasil, nil
 }

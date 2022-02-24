@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"net/http"
 	"sirclo/delivery/common"
 	authRepo "sirclo/repository/auth"
@@ -30,7 +29,6 @@ func (a AuthController) Login() echo.HandlerFunc {
 		// mengambil data user dari DB berdasarkan EMAIL
 		user, err_login := a.repository.FindUserByEmail(loginRequest.Email)
 		if err_login != nil {
-			fmt.Println(err_login)
 			return c.JSON(http.StatusForbidden, common.CustomResponse(403, "Failed Checking Email", "Email Not Match"))
 		}
 		// check password
