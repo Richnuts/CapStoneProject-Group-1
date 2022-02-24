@@ -3,6 +3,7 @@ package checkinandout
 import (
 	"database/sql"
 	"fmt"
+	"sirclo/entities"
 )
 
 type CheckRepository struct {
@@ -34,6 +35,48 @@ func (cr *CheckRepository) Checkout(attendanceId, userId int) error {
 	mengubah, _ := result.RowsAffected()
 	if mengubah == 0 {
 		return fmt.Errorf("wfo request not found")
+	}
+	return nil
+}
+
+func (cc *CheckRepository) GetCheckbyId(id int) (entities.CheckinAndOutResponseFormat, error) {
+	var check entities.CheckinAndOutResponseFormat
+	result, err_check := cc.db.Query(`
+	SELECT
+		id, check_in, check_temperature, check_out, check_status
+	FROM
+		attendances
+	WHERE
+		id = ?`, id)
+	if err_check != nil {
+		return check, err_check
+	}
+	defer result.Close()
+	for result.Next() {
+		err := result.Scan(&id, &check.Checkin, &check.CheckTemperature, &check.Checkout, &check.CheckStatus)
+		if err != nil {
+			return check, err
+		}
+	}
+	return check, nil
+}
+
+func (cc *CheckRepository) GetCheckDate(id int) error {
+	result, err_check := cc.db.Query(`
+	SELECT
+		schedules.id
+	FROM
+		attendances
+	JOIN
+		schedules ON attendances.schedule_id = schedules.id 
+	WHERE
+		attendances.id = ? AND date(schedules.date) = current_date()`, id)
+	if err_check != nil {
+		return err_check
+	}
+	defer result.Close()
+	for result.Next() {
+		return fmt.Errorf("udah sehat, jangan aneh-aneh")
 	}
 	return nil
 }
