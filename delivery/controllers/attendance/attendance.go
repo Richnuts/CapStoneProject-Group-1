@@ -1,10 +1,12 @@
 package attendance
 
 import (
+	"fmt"
 	"net/http"
 	"sirclo/delivery/common"
 	"sirclo/delivery/controllers/imageLib"
 	"sirclo/delivery/middlewares"
+	"sirclo/entities"
 	attendanceRepo "sirclo/repository/attendance"
 	"strconv"
 
@@ -28,6 +30,11 @@ func (ac AttendanceController) CreateAttendance(secret string) echo.HandlerFunc 
 		if loginId == 0 {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
+		// check user status vaksin
+		err_vaccine := ac.repository.GetUserVaccineStatus(loginId)
+		if err_vaccine != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "user belum vaccine"))
+		}
 		var attendanceRequest AttendanceRequestFormat
 		// prosess binding text
 		if err_bind := c.Bind(&attendanceRequest); err_bind != nil {
@@ -37,11 +44,6 @@ func (ac AttendanceController) CreateAttendance(secret string) echo.HandlerFunc 
 		err_checking := ac.repository.GetUserAttendanceStatus(loginId, attendanceRequest.ScheduleId)
 		if err_checking != nil {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "request telah ada"))
-		}
-		// check user status vaksin
-		err_vaccine := ac.repository.GetUserVaccineStatus(loginId)
-		if err_vaccine != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "user belum vaccine"))
 		}
 		// proses binding image
 		fileData, fileInfo, err_binding_image := c.Request().FormFile("image")
@@ -70,5 +72,197 @@ func (ac AttendanceController) CreateAttendance(secret string) echo.HandlerFunc 
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "Failed Creating Entity in database"))
 		}
 		return c.JSON(http.StatusOK, common.CustomResponse(200, "operation success", "berhasil membuat request WFO"))
+	}
+}
+
+func (ac AttendanceController) EditAttendance(secret string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// check token
+		loginId := middlewares.GetUserId(secret, c)
+		if loginId == 0 {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// check role
+		role := middlewares.GetUserRole(secret, c)
+		if role != "admin" {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		var attendanceRequest AttendanceEditFormat
+		// getting the id
+		attendanceId, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, common.BadRequest())
+		}
+		// prosess binding text
+		if err_bind := c.Bind(&attendanceRequest); err_bind != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "binding text gagal"))
+		}
+		if attendanceRequest.StatusInfo == "" {
+			attendanceRequest.StatusInfo = "-"
+		}
+		// check capacity
+		capacity, err_capacity := ac.repository.CheckCapacity(attendanceRequest.ScheduleId)
+		if err_capacity != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "gagal mengecheck capacity"))
+		}
+		if capacity < 1 {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "Kapasitas telah penuh"))
+		}
+		// edit the status
+		err_edit := ac.repository.EditAttendance(attendanceId, loginId, attendanceRequest.Status, attendanceRequest.StatusInfo)
+		if err_edit != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "gagal merubah status / request sudah diedit"))
+		}
+		return c.JSON(http.StatusOK, common.CustomResponse(200, "operation success", "berhasil merubah status request WFO"))
+	}
+}
+
+func (ac AttendanceController) GetAttendanceById(secret string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// check token
+		loginId := middlewares.GetUserId(secret, c)
+		if loginId == 0 {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// getting the id
+		attendanceId, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, common.BadRequest())
+		}
+		// get the attendance
+		hasil, err_get := ac.repository.GetAttendanceById(attendanceId)
+		if err_get != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+		}
+		return c.JSON(http.StatusOK, hasil)
+	}
+}
+
+func (ac AttendanceController) GetMyAttendance(secret string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// check token
+		loginId := middlewares.GetUserId(secret, c)
+		if loginId == 0 {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// getting the page
+		pageString := c.QueryParam("page")
+		halaman, err := strconv.Atoi(pageString)
+		if err != nil {
+			halaman = 1
+		}
+		offset := (halaman - 1) * 10
+		// getting the status
+		status := c.QueryParam("status")
+		// get the attendance
+		hasil, err_get := ac.repository.GetMyAttendance(loginId, offset, status)
+		if err_get != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+		}
+		// get total page
+		page, err_page := ac.repository.GetMyAttendanceTotalPage(loginId, status)
+		if err_page != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+		}
+		data := entities.AttendancePageFormat{TotalPage: page, Attendance: hasil}
+		return c.JSON(http.StatusOK, data)
+	}
+}
+
+func (ac AttendanceController) GetMyAttendanceSortByLatest(secret string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// check token
+		loginId := middlewares.GetUserId(secret, c)
+		if loginId == 0 {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// getting the page
+		pageString := c.QueryParam("page")
+		halaman, err := strconv.Atoi(pageString)
+		if err != nil {
+			halaman = 1
+		}
+		offset := (halaman - 1) * 10
+		// getting the status
+		status := c.QueryParam("status")
+		// get the attendance
+		hasil, err_get := ac.repository.GetMyAttendanceSortByLatest(loginId, offset, status)
+		if err_get != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+		}
+		// get total page
+		page, err_page := ac.repository.GetMyAttendanceTotalPage(loginId, status)
+		if err_page != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+		}
+		data := entities.AttendancePageFormat{TotalPage: page, Attendance: hasil}
+		return c.JSON(http.StatusOK, data)
+	}
+}
+
+func (ac AttendanceController) GetMyAttendanceSortByLongest(secret string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// check token
+		loginId := middlewares.GetUserId(secret, c)
+		if loginId == 0 {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// getting the page
+		pageString := c.QueryParam("page")
+		halaman, err := strconv.Atoi(pageString)
+		if err != nil {
+			halaman = 1
+		}
+		offset := (halaman - 1) * 10
+		// getting the status
+		status := c.QueryParam("status")
+		// get the attendance
+		hasil, err_get := ac.repository.GetMyAttendanceSortByLongest(loginId, offset, status)
+		if err_get != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+		}
+		// get total page
+		page, err_page := ac.repository.GetMyAttendanceTotalPage(loginId, status)
+		if err_page != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+		}
+		data := entities.AttendancePageFormat{TotalPage: page, Attendance: hasil}
+		return c.JSON(http.StatusOK, data)
+	}
+}
+
+func (ac AttendanceController) GetPendingAttendance(secret string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// check token
+		loginId := middlewares.GetUserId(secret, c)
+		if loginId == 0 {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// check role
+		role := middlewares.GetUserRole(secret, c)
+		if role != "admin" {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// getting the page
+		pageString := c.QueryParam("page")
+		halaman, err := strconv.Atoi(pageString)
+		if err != nil {
+			halaman = 1
+		}
+		offset := (halaman - 1) * 10
+
+		// get the attendance
+		hasil, err_get := ac.repository.GetPendingAttendance(offset)
+		if err_get != nil {
+			fmt.Println(err_get)
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+		}
+		// get total page
+		page, err_page := ac.repository.GetPendingAttendanceTotalPage()
+		if err_page != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "total page error"))
+		}
+		data := entities.PendingAttendancePageFormat{TotalPage: page, Attendance: hasil}
+		return c.JSON(http.StatusOK, data)
 	}
 }

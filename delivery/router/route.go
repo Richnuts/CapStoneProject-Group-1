@@ -63,4 +63,10 @@ func RegisterPath(
 
 	// attendance
 	e.POST("/attendances", attendanceController.CreateAttendance(secret), middlewares.JWTMiddleware())
+	e.PUT("/attendances/:id", attendanceController.EditAttendance(secret), middlewares.JWTMiddleware())
+	e.GET("/attendances/:id", attendanceController.GetAttendanceById(secret), middlewares.JWTMiddleware())
+	e.GET("/myattendances", attendanceController.GetMyAttendance(secret), middlewares.JWTMiddleware())
+	e.GET("/mylatestattendances", attendanceController.GetMyAttendanceSortByLatest(secret), middlewares.JWTMiddleware())
+	e.GET("/mylongestattendances", attendanceController.GetMyAttendanceSortByLongest(secret), middlewares.JWTMiddleware())
+	e.GET("/pendingattendances", attendanceController.GetPendingAttendance(secret), middlewares.JWTMiddleware())
 }
