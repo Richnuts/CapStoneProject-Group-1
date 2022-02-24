@@ -31,20 +31,22 @@ func (cer *CertificateRepository) GetMyCertificate(userId int) ([]entities.Certi
 	var certificates []entities.CertificateResponseGetByIdAndUID
 	result, err_certificates := cer.db.Query(`
 	SELECT
-		certificates.id, certificates.image_url, certificates.vaccine_dose, certificates.status, certificates.description
+		certificates.id, certificates.image_url, certificates.vaccine_dose, b.name, certificates.status, certificates.description
 	FROM
 		certificates
 	JOIN
-		users on certificates.user_id = users.id
+		users as a on certificates.user_id = a.id
+	JOIN
+		users as b on certificates.admin_id = b.id
 	WHERE
-		users.id = ?`, userId)
+		a.id = ?`, userId)
 	if err_certificates != nil {
 		return certificates, err_certificates
 	}
 	defer result.Close()
 	for result.Next() {
 		var certificate entities.CertificateResponseGetByIdAndUID
-		err := result.Scan(&certificate.Id, &certificate.ImageURL, &certificate.VaccineDose, &certificate.Status, &certificate.Description)
+		err := result.Scan(&certificate.Id, &certificate.ImageURL, &certificate.VaccineDose, &certificate.AdminName, &certificate.Status, &certificate.Description)
 		if err != nil {
 			return certificates, err
 		}
@@ -57,11 +59,13 @@ func (cer *CertificateRepository) GetUsersCertificates(status string, offset int
 	var certificates []entities.UsersCertificate
 	result, err_certificates := cer.db.Query(`
 	SELECT
-		certificates.id, users.name, certificates.image_url, certificates.vaccine_dose, certificates.status, certificates.description
+		certificates.id, a.name, certificates.image_url, certificates.vaccine_dose, b.name, certificates.status, certificates.description
 	FROM
 		certificates
 	JOIN
-		users on certificates.user_id = users.id
+		users as a on certificates.user_id = a.id
+	JOIN
+		users as b on certificates.admin_id = b.id
 	WHERE
 		certificates.status LIKE ?
 	ORDER BY
@@ -73,7 +77,7 @@ func (cer *CertificateRepository) GetUsersCertificates(status string, offset int
 	defer result.Close()
 	for result.Next() {
 		var certificate entities.UsersCertificate
-		err := result.Scan(&certificate.Id, &certificate.Name, &certificate.ImageURL, &certificate.VaccineDose, &certificate.Status, &certificate.Description)
+		err := result.Scan(&certificate.Id, &certificate.Name, &certificate.ImageURL, &certificate.VaccineDose, &certificate.AdminName, &certificate.Status, &certificate.Description)
 		if err != nil {
 			return certificates, err
 		}
@@ -86,13 +90,15 @@ func (cer *CertificateRepository) GetCertificateById(id, userId int) (entities.C
 	var certificate entities.CertificateResponseGetByIdAndUID
 	result, err_certificate := cer.db.Query(`
 	SELECT
-		certificates.id, certificates.image_url, certificates.vaccine_dose, certificates.status, certificates.description
+		certificates.id, certificates.image_url, certificates.vaccine_dose, b.name, certificates.status, certificates.description
 	FROM
 		certificates
 	JOIN
-		users on certificates.user_id = users.id
+		users as a on certificates.user_id = a.id
+	JOIN
+		users as b on certificates.admin_id = b.id
 	WHERE
-		certificates.id = ? AND users.id = ?`, id, userId)
+		certificates.id = ? AND a.id = ?`, id, userId)
 	if err_certificate != nil {
 		return certificate, err_certificate
 	}
@@ -106,8 +112,8 @@ func (cer *CertificateRepository) GetCertificateById(id, userId int) (entities.C
 	return certificate, nil
 }
 
-func (cer *CertificateRepository) EditCertificate(id int, status string) error {
-	result, err := cer.db.Exec("UPDATE certificates SET status = ? WHERE id = ? AND status = ?", status, id, "Pending")
+func (cer *CertificateRepository) EditCertificate(id, adminId int, status string) error {
+	result, err := cer.db.Exec("UPDATE certificates SET status = ?, admin_id = ? WHERE id = ? AND status = ?", status, adminId, id, "Pending")
 	if err != nil {
 		return err
 	}

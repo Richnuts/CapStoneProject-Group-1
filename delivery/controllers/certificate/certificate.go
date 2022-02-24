@@ -254,7 +254,7 @@ func (cer CertificateController) EditCertificate(secret string) echo.HandlerFunc
 		if CertificateEditRequest.Status != "Rejected" && CertificateEditRequest.Status != "Approved" {
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
-		err_edit := cer.repository.EditCertificate(certificateId, CertificateEditRequest.Status)
+		err_edit := cer.repository.EditCertificate(certificateId, loginId, CertificateEditRequest.Status)
 
 		if err_edit != nil {
 			fmt.Println(err_edit)
