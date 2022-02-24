@@ -7,7 +7,7 @@ type Certificate interface {
 	GetMyCertificate(userId int) ([]entities.CertificateResponseGetByIdAndUID, error)
 	GetUsersCertificates(status string, offset int) ([]entities.UsersCertificate, error)
 	GetCertificateById(id, userId int) (entities.CertificateResponseGetByIdAndUID, error)
-	EditCertificate(id int, status string) error
+	EditCertificate(id, adminId int, status string) error
 	EditMyCertificate(id int, imageURL string) error
 	GetCertificateByDose(userId, vaccineDose int) error
 	GetVaccineStatus(userId int) error
