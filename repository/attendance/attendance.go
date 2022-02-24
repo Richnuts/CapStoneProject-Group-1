@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"sirclo/entities"
+	"time"
 )
 
 type AttendanceRepository struct {
@@ -259,4 +260,19 @@ func (ar AttendanceRepository) GetMyAttendanceSortByLongest(userId int, offset i
 		hasilAkhir = append(hasilAkhir, hasil)
 	}
 	return hasilAkhir, nil
+}
+
+func (ar AttendanceRepository) CheckCreateRequestDate(scheduleId int) (time.Time, error) {
+	result := ar.db.QueryRow(`SELECT
+        schedules.date
+    FROM
+        schedules
+    WHERE
+        schedules.id = ?`, scheduleId)
+	var hasil time.Time
+	err := result.Scan(&hasil)
+	if err != nil {
+		return hasil, err
+	}
+	return hasil, nil
 }

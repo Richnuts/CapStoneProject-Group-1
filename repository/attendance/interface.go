@@ -1,6 +1,9 @@
 package attendance
 
-import "sirclo/entities"
+import (
+	"sirclo/entities"
+	"time"
+)
 
 type Attendance interface {
 	CreateAttendance(userId int, scheduleId int, description string, imageUrl string) error
@@ -15,4 +18,5 @@ type Attendance interface {
 	GetUserAttendanceStatus(userId int, scheduleId int) error
 	GetUserVaccineStatus(userId int) error
 	CheckCapacity(scheduleId int) (int, error)
+	CheckCreateRequestDate(scheduleId int) (time.Time, error)
 }
