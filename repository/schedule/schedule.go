@@ -17,12 +17,16 @@ func New(db *sql.DB) *ScheduleRepository {
 }
 
 func (sr *ScheduleRepository) CreateSchedule(month time.Month, year int, capacity int, officeId int) error {
-	gmt := time.FixedZone("gmt+7", +7*60*60)
+	gmt, err_timezone := time.LoadLocation("Asia/Jakarta")
+	if err_timezone != nil {
+		return err_timezone
+	}
 	day := 1
 	start := time.Date(year, month, day, 0, 0, 0, 0, gmt)
+	fmt.Println(start)
 	start_end := start.AddDate(0, 1, 0)
+	fmt.Println(start_end)
 	for start != start_end {
-		start = start.AddDate(0, 0, 1)
 		result, err := sr.db.Exec("INSERT INTO schedules (office_id, total_capacity, date) VALUES (?, ?, ?)", officeId, capacity, start)
 		if err != nil {
 			return err
@@ -31,6 +35,7 @@ func (sr *ScheduleRepository) CreateSchedule(month time.Month, year int, capacit
 		if mengubah == 0 {
 			return fmt.Errorf("error gagal terbuat")
 		}
+		start = start.AddDate(0, 0, 1)
 	}
 	return nil
 }

@@ -6,6 +6,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: toor
       MYSQL_DATABASE: capstone_project
+      MYSQL_TZ: Asia/Jakarta
     ports: 
       - 3306:3306
     volumes:

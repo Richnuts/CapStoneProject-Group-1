@@ -9,6 +9,7 @@ import (
 	"sirclo/entities"
 	attendanceRepo "sirclo/repository/attendance"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -39,6 +40,16 @@ func (ac AttendanceController) CreateAttendance(secret string) echo.HandlerFunc 
 		// prosess binding text
 		if err_bind := c.Bind(&attendanceRequest); err_bind != nil {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "binding text gagal"))
+		}
+		// check tanggal request > tanggal sekarang
+		requestDate, err_check_date := ac.repository.CheckCreateRequestDate(attendanceRequest.ScheduleId)
+		if err_check_date != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "tanggal nya ga ada woi"))
+		}
+		currentDate := time.Now()
+		checkDate := currentDate.Before(requestDate)
+		if !checkDate {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "tanggal request harus lebih besar daripada tanggal hari ini"))
 		}
 		// Check requestnya udah ada belom
 		err_checking := ac.repository.GetUserAttendanceStatus(loginId, attendanceRequest.ScheduleId)
