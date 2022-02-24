@@ -74,7 +74,7 @@ func (cer CertificateController) CreateCertificate(secret string) echo.HandlerFu
 			fmt.Println(err_certificate)
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "failed creating schedule", "duplicate entry"))
 		}
-		return c.JSON(http.StatusOK, common.SuccessOperation("berhasil membuat jadwal"))
+		return c.JSON(http.StatusOK, common.SuccessOperation("berhasil menambah sertifikat"))
 	}
 }
 
@@ -222,7 +222,7 @@ func (cer CertificateController) EditMyCertificate(secret string) echo.HandlerFu
 			fmt.Println(err_edit)
 			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
-		return c.JSON(http.StatusOK, common.SuccessOperation("check out success"))
+		return c.JSON(http.StatusOK, common.SuccessOperation("Edit image success"))
 	}
 }
 
@@ -251,12 +251,15 @@ func (cer CertificateController) EditCertificate(secret string) echo.HandlerFunc
 			fmt.Println(err_bind)
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
+		if CertificateEditRequest.Status != "Rejected" && CertificateEditRequest.Status != "Approved" {
+			return c.JSON(http.StatusBadRequest, common.BadRequest())
+		}
 		err_edit := cer.repository.EditCertificate(certificateId, CertificateEditRequest.Status)
 
 		if err_edit != nil {
 			fmt.Println(err_edit)
 			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
-		return c.JSON(http.StatusOK, common.SuccessOperation("check out success"))
+		return c.JSON(http.StatusOK, common.SuccessOperation("Edit status success"))
 	}
 }
