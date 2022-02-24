@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"sirclo/delivery/controllers/attendance"
 	"sirclo/delivery/controllers/auth"
 	"sirclo/delivery/controllers/checkinandout"
 	"sirclo/delivery/controllers/office"
@@ -20,6 +21,7 @@ func RegisterPath(
 	scheduleController *schedule.ScheduleController,
 	officeController *office.OfficeController,
 	checkController *checkinandout.CheckController,
+	attendanceController *attendance.AttendanceController,
 	secret string,
 ) {
 	// logger
@@ -39,7 +41,7 @@ func RegisterPath(
 	e.PUT("/users/:id", userController.EditUser(secret), middlewares.JWTMiddleware())
 	// schedule
 	e.POST("/schedules", scheduleController.CreateSchedule(secret), middlewares.JWTMiddleware())
-  e.PUT("/schedules/:id", scheduleController.EditSchedule(secret), middlewares.JWTMiddleware())
+	e.PUT("/schedules/:id", scheduleController.EditSchedule(secret), middlewares.JWTMiddleware())
 	e.GET("/schedules/:id", scheduleController.GetSchedule(secret), middlewares.JWTMiddleware())
 	e.GET("/schedules", scheduleController.GetSchedulesByMonthAndYear(secret), middlewares.JWTMiddleware())
 	// office
@@ -48,4 +50,6 @@ func RegisterPath(
 	//check in and out
 	e.PUT("/checkin", checkController.Checkin(secret), middlewares.JWTMiddleware())
 	e.PUT("/checkout", checkController.Checkout(secret), middlewares.JWTMiddleware())
+	// attendance
+	e.POST("/attendances", attendanceController.CreateAttendance(secret), middlewares.JWTMiddleware())
 }

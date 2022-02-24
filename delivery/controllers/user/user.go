@@ -1,7 +1,6 @@
 package user
 
 import (
-	"fmt"
 	"net/http"
 	"sirclo/delivery/common"
 	"sirclo/delivery/controllers/imageLib"
@@ -31,10 +30,8 @@ func (uc UserController) GetProfile(secret string) echo.HandlerFunc {
 		if loginId == 0 {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
-		fmt.Println(loginId)
 		result, err := uc.repository.GetUser(loginId)
 		if err != nil {
-			fmt.Println(err)
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
 
@@ -123,7 +120,7 @@ func (uc UserController) EditUser(secret string) echo.HandlerFunc {
 		if err_binding_image == nil {
 			// check file extension
 			_, err_check_extension := imageLib.CheckFileExtension(fileInfo.Filename)
-			if err_check_extension == nil {
+			if err_check_extension != nil {
 				return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file extension error"))
 			}
 
@@ -150,11 +147,9 @@ func (uc UserController) EditUser(secret string) echo.HandlerFunc {
 			Email:    userRequest.Email,
 			ImageUrl: theUrl,
 		}
-		fmt.Println(user)
 		err_edit := uc.repository.EditUser(user)
 
 		if err_edit != nil {
-			fmt.Println(err_edit)
 			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("berhasil mengubah data user"))

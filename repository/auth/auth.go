@@ -33,7 +33,6 @@ func (a *AuthRepository) Login(email string) (entities.Login, error) {
 	// input email = asd, password = 123
 	result, err := a.db.Query("select id, name, email, role from users where email = ?", email)
 	if err != nil {
-		fmt.Println(err)
 		return user, err
 	}
 	for result.Next() {
