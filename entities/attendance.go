@@ -11,6 +11,12 @@ type Attendance struct {
 	StatusInfo  int    `json:"statusinfo" form:"statusinfo"`
 }
 
+type CheckinAndOutResponseFormat struct {
+	Checkin          *string  `json:"checkin" form:"checkin"`
+	Checkout         *string  `json:"checkout" form:"checkout"`
+	CheckTemperature *float64 `json:"checktemperature" form:"checktemperature"`
+	CheckStatus      *string  `json:"checkstatus" form:"checkstatus"`
+}
 type PendingAttendance struct {
 	Id          int                `json:"id" form:"id"`
 	Date        string             `json:"date" form:"date"`
