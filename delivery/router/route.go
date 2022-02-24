@@ -50,8 +50,10 @@ func RegisterPath(
 	e.PUT("/checkin", checkController.Checkin(secret), middlewares.JWTMiddleware())
 	e.PUT("/checkout", checkController.Checkout(secret), middlewares.JWTMiddleware())
 	//certificate
-	e.GET("/certificates", certificateController.GetCertificate(secret), middlewares.JWTMiddleware())
-	// e.GET("/certificates/:id", userController.GetUser(secret), middlewares.JWTMiddleware())
+	e.GET("/mycertificates", certificateController.GetMyCertificate(secret), middlewares.JWTMiddleware())
+	e.GET("/certificates", certificateController.GetUsersCertificates(secret), middlewares.JWTMiddleware())
+	e.GET("/certificates/:id", certificateController.GetCertificateById(secret), middlewares.JWTMiddleware())
 	e.POST("/certificates", certificateController.CreateCertificate(secret), middlewares.JWTMiddleware())
-	// e.PUT("/certificates/:id", userController.EditUser(secret), middlewares.JWTMiddleware())
+	e.PUT("/certificates/:id", certificateController.EditCertificate(secret), middlewares.JWTMiddleware())
+	e.PUT("/mycertificates/:id", certificateController.EditMyCertificate(secret), middlewares.JWTMiddleware())
 }

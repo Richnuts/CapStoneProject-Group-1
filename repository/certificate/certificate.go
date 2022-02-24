@@ -3,6 +3,7 @@ package certificate
 import (
 	"database/sql"
 	"fmt"
+	"math"
 	"sirclo/entities"
 )
 
@@ -26,7 +27,7 @@ func (cer *CertificateRepository) CreateCertificate(userId, vaccineDose int, ima
 	return nil
 }
 
-func (cer *CertificateRepository) GetApprovedCertificate(userId int) ([]entities.CertificateResponseGetByIdAndUID, error) {
+func (cer *CertificateRepository) GetMyCertificate(userId int) ([]entities.CertificateResponseGetByIdAndUID, error) {
 	var certificates []entities.CertificateResponseGetByIdAndUID
 	result, err_certificates := cer.db.Query(`
 	SELECT
@@ -36,7 +37,7 @@ func (cer *CertificateRepository) GetApprovedCertificate(userId int) ([]entities
 	JOIN
 		users on certificates.user_id = users.id
 	WHERE
-		users.id = ? AND certificates.status != ?`, userId, "Rejected")
+		users.id = ?`, userId)
 	if err_certificates != nil {
 		return certificates, err_certificates
 	}
@@ -44,6 +45,35 @@ func (cer *CertificateRepository) GetApprovedCertificate(userId int) ([]entities
 	for result.Next() {
 		var certificate entities.CertificateResponseGetByIdAndUID
 		err := result.Scan(&certificate.Id, &certificate.ImageURL, &certificate.VaccineDose, &certificate.Status, &certificate.Description)
+		if err != nil {
+			return certificates, err
+		}
+		certificates = append(certificates, certificate)
+	}
+	return certificates, nil
+}
+func (cer *CertificateRepository) GetUsersCertificates(status string, offset int) ([]entities.UsersCertificate, error) {
+	status = "%" + status + "%"
+	var certificates []entities.UsersCertificate
+	result, err_certificates := cer.db.Query(`
+	SELECT
+		certificates.id, users.name, certificates.image_url, certificates.vaccine_dose, certificates.status, certificates.description
+	FROM
+		certificates
+	JOIN
+		users on certificates.user_id = users.id
+	WHERE
+		certificates.status LIKE ?
+	ORDER BY
+		certificates.status DESC
+	LIMIT 10 OFFSET ?`, status, offset)
+	if err_certificates != nil {
+		return certificates, err_certificates
+	}
+	defer result.Close()
+	for result.Next() {
+		var certificate entities.UsersCertificate
+		err := result.Scan(&certificate.Id, &certificate.Name, &certificate.ImageURL, &certificate.VaccineDose, &certificate.Status, &certificate.Description)
 		if err != nil {
 			return certificates, err
 		}
@@ -88,6 +118,18 @@ func (cer *CertificateRepository) EditCertificate(id int, status string) error {
 	return nil
 }
 
+func (cer *CertificateRepository) EditMyCertificate(id int, imageURL string) error {
+	result, err := cer.db.Exec("UPDATE certificates SET image_url = ?, status = ? WHERE id = ? AND status = ?", imageURL, "Pending", id, "Rejected")
+	if err != nil {
+		return err
+	}
+	mengubah, _ := result.RowsAffected()
+	if mengubah == 0 {
+		return fmt.Errorf("status already assigned")
+	}
+	return nil
+}
+
 func (cer *CertificateRepository) GetCertificateByDose(userId, vaccineDose int) error {
 	result, err_certificate := cer.db.Query(`
 	SELECT
@@ -95,7 +137,7 @@ func (cer *CertificateRepository) GetCertificateByDose(userId, vaccineDose int) 
 	FROM
 		certificates
 	WHERE
-		user_id = ? AND vaccine_dose = ?`, userId, vaccineDose)
+		user_id = ? AND vaccine_dose = ? AND status != ?`, userId, vaccineDose, "Rejected")
 	if err_certificate != nil {
 		return err_certificate
 	}
@@ -104,4 +146,56 @@ func (cer *CertificateRepository) GetCertificateByDose(userId, vaccineDose int) 
 		return fmt.Errorf("udah upload atau pending nih")
 	}
 	return nil
+}
+
+func (cer *CertificateRepository) GetVaccineStatus(userId int) error {
+	result, err_certificate := cer.db.Query(`
+	SELECT
+		id
+	FROM
+		users
+	WHERE
+		id = ? AND vaccine_status = ?`, userId, "Approved")
+	if err_certificate != nil {
+		return err_certificate
+	}
+	defer result.Close()
+	for result.Next() {
+		return fmt.Errorf("udah sehat, jangan aneh-aneh")
+	}
+	return nil
+}
+
+func (cer *CertificateRepository) GetVaccineDose(id int) (int, error) {
+	var dose int
+	result := cer.db.QueryRow(`
+	SELECT
+		vaccine_dose
+	FROM
+		certificates
+	WHERE
+		id = ?`, id)
+	fmt.Println(id)
+	err_scan := result.Scan(&dose)
+	if err_scan != nil {
+		return dose, err_scan
+	}
+	return dose, nil
+}
+
+func (cer *CertificateRepository) GetTotalPage(status string) (int, error) {
+	status = "%" + status + "%"
+	var page int
+	result := cer.db.QueryRow(`
+	SELECT
+		count(id)
+	FROM
+		certificates 
+	WHERE 
+		status LIKE ?`, status)
+	err_scan := result.Scan(&page)
+	if err_scan != nil {
+		return 0, err_scan
+	}
+	return int((math.Ceil(float64(page) / float64(10)))), nil
 }
