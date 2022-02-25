@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"sirclo/config"
@@ -11,6 +12,7 @@ import (
 	_officeController "sirclo/delivery/controllers/office"
 	_scheduleController "sirclo/delivery/controllers/schedule"
 	_userController "sirclo/delivery/controllers/user"
+	"time"
 
 	"sirclo/delivery/router"
 	_attendanceRepo "sirclo/repository/attendance"
@@ -22,6 +24,7 @@ import (
 	_userRepo "sirclo/repository/user"
 	"sirclo/util"
 
+	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
@@ -37,7 +40,26 @@ func main() {
 
 	//initialize database connection based on given config
 	db := util.MysqlDriver(config)
-
+	// cron job
+	gmt, _ := time.LoadLocation("Asia/Jakarta")
+	s := gocron.NewScheduler(gmt)
+	s.Every(1).Day().At("00:00").Do(
+		func() {
+			_, err := db.Exec(`
+			UPDATE 
+				attendances 
+			SET
+				check_out = now() 
+			WHERE 
+				check_in is not null AND DAY(CONVERT_TZ(check_in, '+00:00', '+7:00')) = ? AND check_out is null`, (time.Now().Day())-1)
+			if err != nil {
+				fmt.Println("gagal auto logout")
+			} else {
+				fmt.Println("autologout berjalan")
+			}
+		},
+	)
+	s.StartAsync()
 	//initiate user model
 	userRepo := _userRepo.New(db)
 	authRepo := _authRepo.New(db)
