@@ -31,15 +31,13 @@ func (cer *CertificateRepository) GetMyCertificate(userId int) ([]entities.Certi
 	var certificates []entities.CertificateResponseGetByIdAndUID
 	result, err_certificates := cer.db.Query(`
 	SELECT
-		certificates.id, certificates.image_url, certificates.vaccine_dose, b.name, certificates.status, certificates.description
-	FROM
-		certificates
-	JOIN
-		users as a on certificates.user_id = a.id
-	JOIN
-		users as b on certificates.admin_id = b.id
-	WHERE
-		a.id = ?`, userId)
+        certificates.id, certificates.image_url, certificates.vaccine_dose, (select name from users where id = certificates.admin_id) as admin_name, certificates.status, certificates.description
+    FROM
+        certificates
+    JOIN
+        users on certificates.user_id = users.id
+    WHERE
+        certificates.user_id = ?;`, userId)
 	if err_certificates != nil {
 		return certificates, err_certificates
 	}
