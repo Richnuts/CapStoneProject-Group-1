@@ -23,9 +23,7 @@ func (sr *ScheduleRepository) CreateSchedule(month time.Month, year int, capacit
 	}
 	day := 1
 	start := time.Date(year, month, day, 0, 0, 0, 0, gmt)
-	fmt.Println(start)
 	start_end := start.AddDate(0, 1, 0)
-	fmt.Println(start_end)
 	for start != start_end {
 		result, err := sr.db.Exec("INSERT INTO schedules (office_id, total_capacity, date) VALUES (?, ?, ?)", officeId, capacity, start)
 		if err != nil {
@@ -121,11 +119,11 @@ func (sr *ScheduleRepository) GetSchedulesByMonthAndYear(month int, year int, of
 	var hasil []entities.Schedule
 	result, err_users := sr.db.Query(`
 	SELECT
-		id, date, office_id, total_capacity, capacity
+		id, CONVERT_TZ(date, '+00:00', '+7:00') as datenya, office_id, total_capacity, capacity
 	FROM
 		schedules 
 	WHERE 
-		Month(date) = ? AND Year(date) = ? AND office_id = ?`, month, year, officeId)
+		Month(CONVERT_TZ(date, '+00:00', '+7:00')) = ? AND Year(CONVERT_TZ(date, '+00:00', '+7:00')) = ? AND office_id = ?`, month, year, officeId)
 	if err_users != nil {
 		return hasil, err_users
 	}

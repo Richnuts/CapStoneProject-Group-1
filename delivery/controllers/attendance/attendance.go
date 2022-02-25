@@ -1,7 +1,6 @@
 package attendance
 
 import (
-	"fmt"
 	"net/http"
 	"sirclo/delivery/common"
 	"sirclo/delivery/controllers/imageLib"
@@ -46,8 +45,9 @@ func (ac AttendanceController) CreateAttendance(secret string) echo.HandlerFunc 
 		if err_check_date != nil {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "tanggal nya ga ada woi"))
 		}
+		gmt, _ := time.LoadLocation("Asia/Jakarta")
 		currentDate := time.Now()
-		checkDate := currentDate.Before(requestDate)
+		checkDate := currentDate.Before(requestDate.In(gmt))
 		if !checkDate {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "tanggal request harus lebih besar daripada tanggal hari ini"))
 		}
@@ -265,7 +265,6 @@ func (ac AttendanceController) GetPendingAttendance(secret string) echo.HandlerF
 		// get the attendance
 		hasil, err_get := ac.repository.GetPendingAttendance(offset)
 		if err_get != nil {
-			fmt.Println(err_get)
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		// get total page
