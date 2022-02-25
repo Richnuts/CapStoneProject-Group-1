@@ -74,7 +74,7 @@ func (ar AttendanceRepository) GetPendingAttendance(offset int) ([]entities.Pend
 	var hasilAkhir []entities.PendingAttendance
 	result, err_query := ar.db.Query(`
 	SELECT 
-		attendances.id, schedules.date, attendances.image_url, attendances.description, attendances.created_at, attendances.user_id, users.name, users.email, users.image_url, users.nik, users.vaccine_status, offices.name
+		attendances.id, CONVERT_TZ(schedules.date, '+00:00', '+7:00'), attendances.image_url, attendances.description, CONVERT_TZ(attendances.created_at, '+00:00', '+7:00'), attendances.user_id, users.name, users.email, users.image_url, users.nik, users.vaccine_status, offices.name
 	FROM 
 		attendances 
 	JOIN
@@ -132,7 +132,7 @@ func (ar AttendanceRepository) GetAttendanceById(attendanceId int) (entities.Att
 	var hasil entities.AttendanceGetFormat
 	result := ar.db.QueryRow(`
 	SELECT 
-		attendances.id, users.name, schedules.date, offices.name, attendances.status,  attendances.status_info, (select name from users where id = attendances.admin_id) AS checker, attendances.check_in
+		attendances.id, users.name, CONVERT_TZ(schedules.date, '+00:00', '+7:00'), offices.name, attendances.status,  attendances.status_info, (select name from users where id = attendances.admin_id) AS checker, CONVERT_TZ(attendances.check_in, '+00:00', '+7:00')
 	FROM 
 		attendances 
 	JOIN
@@ -155,7 +155,7 @@ func (ar AttendanceRepository) GetMyAttendance(userId int, offset int, status st
 	status = "%" + status + "%"
 	result, err_query := ar.db.Query(`
 	SELECT 
-		attendances.id, users.name, schedules.date, offices.name, attendances.status, attendances.status_info, (select name from users where id = attendances.admin_id) AS checker, attendances.check_in, attendances.created_at, attendances.updated_at
+		attendances.id, users.name, CONVERT_TZ(schedules.date, '+00:00', '+7:00'), offices.name, attendances.status, attendances.status_info, (select name from users where id = attendances.admin_id) AS checker, CONVERT_TZ(attendances.check_in, '+00:00', '+7:00'), CONVERT_TZ(attendances.created_at, '+00:00', '+7:00'), CONVERT_TZ(attendances.updated_at, '+00:00', '+7:00')
 	FROM 
 		attendances 
 	JOIN
@@ -203,7 +203,7 @@ func (ar AttendanceRepository) GetMyAttendanceSortByLatest(userId int, offset in
 	status = "%" + status + "%"
 	result, err_query := ar.db.Query(`
 	SELECT 
-		attendances.id, users.name, schedules.date, offices.name, attendances.status, attendances.status_info, (select name from users where id = attendances.admin_id) AS checker, attendances.check_in, attendances.created_at, attendances.updated_at
+		attendances.id, users.name, CONVERT_TZ(schedules.date, '+00:00', '+7:00'), offices.name, attendances.status, attendances.status_info, (select name from users where id = attendances.admin_id) AS checker, CONVERT_TZ(attendances.check_in, '+00:00', '+7:00'), CONVERT_TZ(attendances.created_at, '+00:00', '+7:00'), CONVERT_TZ(attendances.updated_at, '+00:00', '+7:00')
 	FROM 
 		attendances 
 	JOIN
@@ -235,7 +235,7 @@ func (ar AttendanceRepository) GetMyAttendanceSortByLongest(userId int, offset i
 	status = "%" + status + "%"
 	result, err_query := ar.db.Query(`
 	SELECT 
-		attendances.id, users.name, schedules.date, offices.name, attendances.status, attendances.status_info, (select name from users where id = attendances.admin_id) AS checker, attendances.check_in, attendances.created_at, attendances.updated_at
+		attendances.id, users.name, CONVERT_TZ(schedules.date, '+00:00', '+7:00'), offices.name, attendances.status, attendances.status_info, (select name from users where id = attendances.admin_id) AS checker, CONVERT_TZ(attendances.check_in, '+00:00', '+7:00'), CONVERT_TZ(attendances.created_at, '+00:00', '+7:00'), CONVERT_TZ(attendances.updated_at, '+00:00', '+7:00')
 	FROM 
 		attendances 
 	JOIN

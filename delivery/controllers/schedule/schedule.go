@@ -7,6 +7,7 @@ import (
 	"sirclo/entities"
 	scheduleRepo "sirclo/repository/schedule"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -106,6 +107,8 @@ func (sr ScheduleController) GetSchedule(secret string) echo.HandlerFunc {
 		if err_get != nil {
 			return c.JSON(http.StatusBadRequest, common.InternalServerError())
 		}
+		gmt, _ := time.LoadLocation("Asia/Jakarta")
+		data.Date = data.Date.In(gmt)
 		// menGet total page
 		var err_page error
 		data.TotalPage, err_page = sr.repository.GetTotalPage(scheduleId)
