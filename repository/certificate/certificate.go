@@ -57,13 +57,11 @@ func (cer *CertificateRepository) GetUsersCertificates(status string, offset int
 	var certificates []entities.UsersCertificate
 	result, err_certificates := cer.db.Query(`
 	SELECT
-		certificates.id, a.name, certificates.image_url, certificates.vaccine_dose, b.name, certificates.status, certificates.description
+		certificates.id, a.name, certificates.image_url, certificates.vaccine_dose, (select name from users where id = certificates.admin_id) as admin_name, certificates.status, certificates.description
 	FROM
 		certificates
 	JOIN
 		users as a on certificates.user_id = a.id
-	JOIN
-		users as b on certificates.admin_id = b.id
 	WHERE
 		certificates.status LIKE ?
 	ORDER BY
@@ -88,13 +86,11 @@ func (cer *CertificateRepository) GetCertificateById(id, userId int) (entities.C
 	var certificate entities.CertificateResponseGetByIdAndUID
 	result, err_certificate := cer.db.Query(`
 	SELECT
-		certificates.id, certificates.image_url, certificates.vaccine_dose, b.name, certificates.status, certificates.description
+		certificates.id, certificates.image_url, certificates.vaccine_dose, (select name from users where id = certificates.admin_id) as admin_name, certificates.status, certificates.description
 	FROM
 		certificates
 	JOIN
 		users as a on certificates.user_id = a.id
-	JOIN
-		users as b on certificates.admin_id = b.id
 	WHERE
 		certificates.id = ? AND a.id = ?`, id, userId)
 	if err_certificate != nil {
