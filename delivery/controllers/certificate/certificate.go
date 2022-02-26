@@ -92,6 +92,7 @@ func (cer CertificateController) GetMyCertificate(secret string) echo.HandlerFun
 		var data entities.UsersCertificateWithName
 		data, err_get := cer.repository.GetMyCertificate(loginId)
 		if err_get != nil {
+			fmt.Println(err_get)
 			return c.JSON(http.StatusBadRequest, common.InternalServerError())
 		}
 		return c.JSON(http.StatusOK, data)

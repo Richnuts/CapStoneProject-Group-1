@@ -38,7 +38,9 @@ func (cer *CertificateRepository) GetMyCertificate(userId int) (entities.UsersCe
     JOIN
         users on certificates.user_id = users.id
     WHERE
-        certificates.user_id = ?;`, userId)
+        certificates.user_id = ?
+	ORDER BY 
+		certificates.vaccine_dose ASC;`, userId)
 	if err_certificates != nil {
 		return hasil, err_certificates
 	}
@@ -54,13 +56,11 @@ func (cer *CertificateRepository) GetMyCertificate(userId int) (entities.UsersCe
 	}
 	result2 := cer.db.QueryRow(`
 	SELECT
-		users.id, users.name, users.vaccine_status
+		id, name, vaccine_status
 	FROM
-		certificates
-	JOIN
-		users ON certificates.user_id = users.id
+		users
 	WHERE
-		users.id = ?`, userId)
+		id = ?`, userId)
 	err_scan := result2.Scan(&hasil.Id, &hasil.Name, &hasil.Status)
 	if err_scan != nil {
 		return hasil, err_scan
