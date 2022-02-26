@@ -157,7 +157,7 @@ func (cer *CertificateRepository) EditCertificate(id, adminId int, status string
 }
 
 func (cer *CertificateRepository) EditMyCertificate(id int, imageURL string) error {
-	result, err := cer.db.Exec("UPDATE certificates SET image_url = ?, status = ? WHERE id = ? AND status = ?", imageURL, "Pending", id, "Rejected")
+	result, err := cer.db.Exec("UPDATE certificates SET image_url = ?, status = ?, created_at = current_timestamp, updated_at = null WHERE id = ? AND status = ?", imageURL, "Pending", id, "Rejected")
 	fmt.Println("anu", imageURL)
 	if err != nil {
 		return err
