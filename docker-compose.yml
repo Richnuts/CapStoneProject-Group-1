@@ -13,7 +13,7 @@ services:
       - 'mysql_data:/bitnami/mysql/data'
 
     healthcheck:
-      test: ["CMD", "mysql", "-u", "root",  "-ptoor", "-e", "show schemas"]
+      test: ["CMD", "mysql", "-u", "root",  "-pM4l!N6", "-e", "show schemas"]
       interval: 10s 
 
   app:
