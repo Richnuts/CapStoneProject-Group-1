@@ -16,7 +16,7 @@ func New(db *sql.DB) *AuthRepository {
 }
 
 // func (ar *AuthRepository) Register(user entities.User) error {
-// 	result, err := ar.db.Exec("INSERT INTO users(name, email, password) VALUES(?,?,?)", user.Name, user.Email, user.Password)
+// 	result, err := ar.db.Exec("INSERT INTO users(name, email, password, nik, role, office_id) VALUES(?,?,?,?,?,?)", user.Name, user.Email, user.Password, user.Nik, user.Role, user.OfficeId)
 // 	if err != nil {
 // 		return err
 // 	}
