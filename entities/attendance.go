@@ -20,6 +20,7 @@ type CheckinAndOutResponseFormat struct {
 type PendingAttendance struct {
 	Id          int                `json:"id" form:"id"`
 	Date        string             `json:"date" form:"date"`
+	Office      string             `json:"office" form:"office"`
 	ImageUrl    string             `json:"image_url" form:"image_url"`
 	Description string             `json:"description" form:"description"`
 	RequestTime string             `json:"request_time" form:"request_time"`
