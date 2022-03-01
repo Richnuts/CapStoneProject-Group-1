@@ -4,8 +4,8 @@ import "sirclo/entities"
 
 type Certificate interface {
 	CreateCertificate(userId, vaccineDose int, imageURL, description string) error
-	GetMyCertificate(userId int) ([]entities.CertificateResponseGetByIdAndUID, error)
-	GetUsersCertificates(status string, offset int) ([]entities.UsersCertificate, error)
+	GetMyCertificate(userId int) (entities.UsersCertificateWithName, error)
+	GetUsersCertificates(status string, offset int) ([]entities.UsersCertificateWithName, error)
 	GetCertificateById(id, userId int) (entities.CertificateResponseGetByIdAndUID, error)
 	EditCertificate(id, adminId int, status string) error
 	EditMyCertificate(id int, imageURL string) error
@@ -13,4 +13,5 @@ type Certificate interface {
 	GetVaccineStatus(userId int) error
 	GetVaccineDose(id int) (int, error)
 	GetTotalPage(status string) (int, error)
+	GetName(id int) (string, error)
 }

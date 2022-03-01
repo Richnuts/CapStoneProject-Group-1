@@ -21,7 +21,6 @@ type CertificateResponseGetByIdAndUID struct {
 
 type UsersCertificate struct {
 	Id          int     `json:"id" form:"id"`
-	Name        string  `json:"name" form:"name"`
 	ImageURL    string  `json:"imageurl" form:"imageurl"`
 	VaccineDose int     `json:"vaccinedose" form:"vaccinedose"`
 	AdminName   *string `json:"adminname" form:"adminname"`
@@ -29,7 +28,14 @@ type UsersCertificate struct {
 	Description string  `json:"description" form:"description"`
 }
 
-type UsersCertificateWithPage struct {
+type UsersCertificateWithName struct {
+	Id           int    `json:"id" form:"id"`
+	Name         string `json:"name" form:"name"`
 	Certificates []UsersCertificate
+	Status       string `json:"status" form:"status"`
+}
+
+type UsersCertificateWithPage struct {
+	Certificates []UsersCertificateWithName
 	TotalPage    int `json:"totalpage" form:"totalpage"`
 }

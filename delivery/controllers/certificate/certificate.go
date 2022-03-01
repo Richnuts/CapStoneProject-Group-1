@@ -41,6 +41,9 @@ func (cer CertificateController) CreateCertificate(secret string) echo.HandlerFu
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
 		err_checking := cer.repository.GetCertificateByDose(loginId, certificateRequest.VaccineDose)
+		if certificateRequest.VaccineDose > 3 {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "jangan ngaco"))
+		}
 		if err_checking != nil {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "request telah ada"))
 		}
@@ -86,9 +89,10 @@ func (cer CertificateController) GetMyCertificate(secret string) echo.HandlerFun
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
 		// mengGet certificate
-		var data []entities.CertificateResponseGetByIdAndUID
+		var data entities.UsersCertificateWithName
 		data, err_get := cer.repository.GetMyCertificate(loginId)
 		if err_get != nil {
+			fmt.Println(err_get)
 			return c.JSON(http.StatusBadRequest, common.InternalServerError())
 		}
 		return c.JSON(http.StatusOK, data)
@@ -120,8 +124,9 @@ func (cer CertificateController) GetUsersCertificates(secret string) echo.Handle
 		offset := (halaman - 1) * 10
 		// mengGet list
 		var hasil entities.UsersCertificateWithPage
+		// var name entities.UsersCertificate
 		var err_get error
-
+		// hasil.Name, _ = cer.repository.GetName(name.Id)
 		hasil.Certificates, err_get = cer.repository.GetUsersCertificates(status, offset)
 		if err_get != nil {
 			fmt.Println("anu", err_get)
