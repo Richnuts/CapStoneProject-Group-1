@@ -75,7 +75,7 @@ func (cer *CertificateRepository) GetUsersCertificates(status string, offset int
 	// var certificates []entities.UsersCertificate
 	result, err1 := cer.db.Query(`
 	SELECT
-		id, name, vaccine_status
+		id, name, nik, vaccine_status
 	FROM
 		users
 	WHERE
@@ -87,7 +87,7 @@ func (cer *CertificateRepository) GetUsersCertificates(status string, offset int
 	defer result.Close()
 	for result.Next() {
 		var user entities.UsersCertificateWithName
-		err := result.Scan(&user.Id, &user.Name, &user.Status)
+		err := result.Scan(&user.Id, &user.Name, &user.Nik, &user.Status)
 		if err != nil {
 			return hasil, err
 		}
@@ -138,7 +138,7 @@ func (cer *CertificateRepository) GetCertificateById(id, userId int) (entities.C
 	}
 	defer result.Close()
 	for result.Next() {
-		err := result.Scan(&certificate.Id, &certificate.ImageURL, &certificate.VaccineDose, &certificate.Status, &certificate.Description)
+		err := result.Scan(&certificate.Id, &certificate.ImageURL, &certificate.VaccineDose, &certificate.AdminName, &certificate.Status, &certificate.Description)
 		if err != nil {
 			return certificate, err
 		}

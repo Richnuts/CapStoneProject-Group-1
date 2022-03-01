@@ -31,6 +31,7 @@ type UsersCertificate struct {
 type UsersCertificateWithName struct {
 	Id           int    `json:"id" form:"id"`
 	Name         string `json:"name" form:"name"`
+	Nik          string `json:"nik" form:"nik"`
 	Certificates []UsersCertificate
 	Status       string `json:"status" form:"status"`
 }
