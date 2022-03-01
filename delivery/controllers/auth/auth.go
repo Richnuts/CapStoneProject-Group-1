@@ -3,6 +3,7 @@ package auth
 import (
 	"net/http"
 	"sirclo/delivery/common"
+	"sirclo/entities"
 	authRepo "sirclo/repository/auth"
 
 	echo "github.com/labstack/echo/v4"
@@ -46,27 +47,29 @@ func (a AuthController) Login() echo.HandlerFunc {
 	}
 }
 
-// func (a AuthController) Register() echo.HandlerFunc {
-// 	return func(c echo.Context) error {
-// 		var userRequest UserRequestFormat
+func (a AuthController) Register() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var userRequest UserRequestFormat
 
-// 		if err := c.Bind(&userRequest); err != nil {
-// 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "Failed Binding", "Failed to bind JSON input"))
-// 		}
+		if err := c.Bind(&userRequest); err != nil {
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "Failed Binding", "Failed to bind JSON input"))
+		}
 
-// 		passwordHash, _ := bcrypt.GenerateFromPassword([]byte(userRequest.Password), bcrypt.MinCost)
-// 		user := entities.User{
-// 			Name:     userRequest.Name,
-// 			Password: string(passwordHash),
-// 			Email:    userRequest.Email,
-// 		}
+		passwordHash, _ := bcrypt.GenerateFromPassword([]byte(userRequest.Password), bcrypt.MinCost)
+		user := entities.User{
+			Name:     userRequest.Name,
+			Password: string(passwordHash),
+			Email:    userRequest.Email,
+			Nik:      userRequest.Nik,
+			OfficeId: userRequest.OfficeId,
+		}
 
-// 		err_regis := a.repository.Register(user)
+		err_regis := a.repository.Register(user)
 
-// 		if err_regis != nil {
-// 			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
-// 		}
+		if err_regis != nil {
+			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+		}
 
-// 		return c.JSON(http.StatusOK, common.SuccessOperation("berhasil membuat user"))
-// 	}
-// }
+		return c.JSON(http.StatusOK, common.SuccessOperation("berhasil membuat user"))
+	}
+}
