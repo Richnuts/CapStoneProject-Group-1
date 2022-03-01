@@ -18,13 +18,15 @@ type CheckinAndOutResponseFormat struct {
 	CheckStatus      *string  `json:"checkstatus" form:"checkstatus"`
 }
 type PendingAttendance struct {
-	Id          int                `json:"id" form:"id"`
-	Date        string             `json:"date" form:"date"`
-	Office      string             `json:"office" form:"office"`
-	ImageUrl    string             `json:"image_url" form:"image_url"`
-	Description string             `json:"description" form:"description"`
-	RequestTime string             `json:"request_time" form:"request_time"`
-	User        UserResponseFormat `json:"user" form:"user"`
+	Id             int                `json:"id" form:"id"`
+	ScheduleId     int                `json:"schedule_id" form:"schedule_id"`
+	ActualCapacity int                `json:"actual_capacity" form:"actual_capacity"`
+	Date           string             `json:"date" form:"date"`
+	Office         string             `json:"office" form:"office"`
+	ImageUrl       string             `json:"image_url" form:"image_url"`
+	Description    string             `json:"description" form:"description"`
+	RequestTime    string             `json:"request_time" form:"request_time"`
+	User           UserResponseFormat `json:"user" form:"user"`
 }
 
 type AttendanceGetFormat struct {

@@ -74,7 +74,7 @@ func (ar AttendanceRepository) GetPendingAttendance(offset int) ([]entities.Pend
 	var hasilAkhir []entities.PendingAttendance
 	result, err_query := ar.db.Query(`
 	SELECT 
-		attendances.id, CONVERT_TZ(schedules.date, '+00:00', '+7:00'), offices.name, attendances.image_url, attendances.description, CONVERT_TZ(attendances.created_at, '+00:00', '+7:00'), attendances.user_id, users.name, users.email, users.image_url, users.nik, users.vaccine_status, (select name from offices where id = users.office_id)
+		attendances.id, CONVERT_TZ(schedules.date, '+00:00', '+7:00'), attendances.schedule_id, (select (total_capacity-capacity) from schedules where id = attendances.id), offices.name, attendances.image_url, attendances.description, CONVERT_TZ(attendances.created_at, '+00:00', '+7:00'), attendances.user_id, users.name, users.email, users.image_url, users.nik, users.vaccine_status, (select name from offices where id = users.office_id)
 	FROM 
 		attendances 
 	JOIN
@@ -93,7 +93,7 @@ func (ar AttendanceRepository) GetPendingAttendance(offset int) ([]entities.Pend
 	defer result.Close()
 	for result.Next() {
 		var hasil entities.PendingAttendance
-		err := result.Scan(&hasil.Id, &hasil.Date, &hasil.Office, &hasil.ImageUrl, &hasil.Description, &hasil.RequestTime, &hasil.User.Id, &hasil.User.Name, &hasil.User.Email, &hasil.User.ImageUrl, &hasil.User.Nik, &hasil.User.VaccineStatus, &hasil.User.Office)
+		err := result.Scan(&hasil.Id, &hasil.Date, &hasil.ScheduleId, &hasil.ActualCapacity, &hasil.Office, &hasil.ImageUrl, &hasil.Description, &hasil.RequestTime, &hasil.User.Id, &hasil.User.Name, &hasil.User.Email, &hasil.User.ImageUrl, &hasil.User.Nik, &hasil.User.VaccineStatus, &hasil.User.Office)
 		if err != nil {
 			return hasilAkhir, err
 		}
