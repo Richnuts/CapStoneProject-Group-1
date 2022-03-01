@@ -32,11 +32,10 @@ func RegisterPath(
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
-		
 	}))
 	// auth
 	e.POST("/login", authController.Login())
-	// e.POST("/register", authController.Register())
+	e.POST("/register", authController.Register())
 	// user
 	e.GET("/profile", userController.GetProfile(secret), middlewares.JWTMiddleware())
 	e.GET("/users/:id", userController.GetUser(secret), middlewares.JWTMiddleware())
