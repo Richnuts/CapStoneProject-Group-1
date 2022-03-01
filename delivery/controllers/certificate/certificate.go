@@ -30,6 +30,12 @@ func (cer CertificateController) CreateCertificate(secret string) echo.HandlerFu
 		if loginId == 0 {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
+		// check role
+		role := middlewares.GetUserRole(secret, c)
+		fmt.Println(role)
+		if role != "user" {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
 		// check status vaccine user
 		err_status := cer.repository.GetVaccineStatus(loginId)
 		if err_status != nil {
@@ -86,6 +92,12 @@ func (cer CertificateController) GetMyCertificate(secret string) echo.HandlerFun
 		// check token
 		loginId := middlewares.GetUserId(secret, c)
 		if loginId == 0 {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// check role
+		role := middlewares.GetUserRole(secret, c)
+		fmt.Println(role)
+		if role != "user" {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
 		// mengGet certificate
@@ -171,6 +183,12 @@ func (cer CertificateController) EditMyCertificate(secret string) echo.HandlerFu
 		loginId := middlewares.GetUserId(secret, c)
 		fmt.Println(loginId)
 		if loginId == 0 {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// check role
+		role := middlewares.GetUserRole(secret, c)
+		fmt.Println(role)
+		if role != "user" {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
 		// check status vaccine user
