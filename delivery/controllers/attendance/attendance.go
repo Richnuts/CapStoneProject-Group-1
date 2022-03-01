@@ -171,10 +171,8 @@ func (ac AttendanceController) GetMyAttendance(secret string) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		// get total page
-		page, err_page := ac.repository.GetMyAttendanceTotalPage(loginId, status)
-		if err_page != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
-		}
+		page, _ := ac.repository.GetMyAttendanceTotalPage(loginId, status)
+
 		data := entities.AttendancePageFormat{TotalPage: page, Attendance: hasil}
 		return c.JSON(http.StatusOK, data)
 	}
@@ -202,10 +200,8 @@ func (ac AttendanceController) GetMyAttendanceSortByLatest(secret string) echo.H
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		// get total page
-		page, err_page := ac.repository.GetMyAttendanceTotalPage(loginId, status)
-		if err_page != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
-		}
+		page, _ := ac.repository.GetMyAttendanceTotalPage(loginId, status)
+
 		data := entities.AttendancePageFormat{TotalPage: page, Attendance: hasil}
 		return c.JSON(http.StatusOK, data)
 	}
@@ -233,10 +229,8 @@ func (ac AttendanceController) GetMyAttendanceSortByLongest(secret string) echo.
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		// get total page
-		page, err_page := ac.repository.GetMyAttendanceTotalPage(loginId, status)
-		if err_page != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
-		}
+		page, _ := ac.repository.GetMyAttendanceTotalPage(loginId, status)
+
 		data := entities.AttendancePageFormat{TotalPage: page, Attendance: hasil}
 		return c.JSON(http.StatusOK, data)
 	}
@@ -268,10 +262,8 @@ func (ac AttendanceController) GetPendingAttendance(secret string) echo.HandlerF
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		// get total page
-		page, err_page := ac.repository.GetPendingAttendanceTotalPage()
-		if err_page != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "total page error"))
-		}
+		page, _ := ac.repository.GetPendingAttendanceTotalPage()
+
 		data := entities.PendingAttendancePageFormat{TotalPage: page, Attendance: hasil}
 		return c.JSON(http.StatusOK, data)
 	}

@@ -1,0 +1,18 @@
+mode: set
+sirclo/delivery/controllers/auth/auth.go:17.46,21.2 1 1
+sirclo/delivery/controllers/auth/auth.go:23.50,24.36 1 1
+sirclo/delivery/controllers/auth/auth.go:24.36,27.47 2 1
+sirclo/delivery/controllers/auth/auth.go:31.3,32.23 2 1
+sirclo/delivery/controllers/auth/auth.go:36.3,37.23 2 1
+sirclo/delivery/controllers/auth/auth.go:41.3,42.17 2 1
+sirclo/delivery/controllers/auth/auth.go:46.3,46.46 1 1
+sirclo/delivery/controllers/auth/auth.go:27.47,29.4 1 1
+sirclo/delivery/controllers/auth/auth.go:32.23,34.4 1 1
+sirclo/delivery/controllers/auth/auth.go:37.23,39.4 1 1
+sirclo/delivery/controllers/auth/auth.go:42.17,44.4 1 1
+sirclo/delivery/controllers/auth/auth.go:50.53,51.36 1 1
+sirclo/delivery/controllers/auth/auth.go:51.36,54.46 2 1
+sirclo/delivery/controllers/auth/auth.go:58.3,69.23 4 1
+sirclo/delivery/controllers/auth/auth.go:73.3,73.81 1 1
+sirclo/delivery/controllers/auth/auth.go:54.46,56.4 1 1
+sirclo/delivery/controllers/auth/auth.go:69.23,71.4 1 1

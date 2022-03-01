@@ -110,11 +110,7 @@ func (sr ScheduleController) GetSchedule(secret string) echo.HandlerFunc {
 		gmt, _ := time.LoadLocation("Asia/Jakarta")
 		data.Date = data.Date.In(gmt)
 		// menGet total page
-		var err_page error
-		data.TotalPage, err_page = sr.repository.GetTotalPage(scheduleId)
-		if err_page != nil {
-			return c.JSON(http.StatusBadRequest, common.InternalServerError())
-		}
+		data.TotalPage, _ = sr.repository.GetTotalPage(scheduleId)
 
 		return c.JSON(http.StatusOK, data)
 	}
