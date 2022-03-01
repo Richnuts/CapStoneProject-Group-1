@@ -174,6 +174,7 @@ func (ac AttendanceController) GetMyAttendance(secret string) echo.HandlerFunc {
 		page, _ := ac.repository.GetMyAttendanceTotalPage(loginId, status)
 
 		data := entities.AttendancePageFormat{TotalPage: page, Attendance: hasil}
+
 		return c.JSON(http.StatusOK, data)
 	}
 }

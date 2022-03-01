@@ -165,7 +165,7 @@ func (ar AttendanceRepository) GetMyAttendance(userId int, offset int, status st
 	JOIN
 		users ON attendances.user_id = users.id
 	WHERE 
-		user_id = ? AND attendances.status like ? LIMIT 10 OFFSET ?`, userId, status, offset)
+		attendances.user_id = ? AND attendances.status like ? LIMIT 10 OFFSET ?`, userId, status, offset)
 	if err_query != nil {
 		return hasilAkhir, fmt.Errorf("request wfo not found")
 	}
@@ -174,6 +174,7 @@ func (ar AttendanceRepository) GetMyAttendance(userId int, offset int, status st
 		var hasil entities.AttendanceGetFormat
 		err := result.Scan(&hasil.Id, &hasil.Name, &hasil.Date, &hasil.Office, &hasil.Status, &hasil.StatusInfo, &hasil.AdminName, &hasil.CheckIn, &hasil.RequestTime, &hasil.ApprovedTime)
 		if err != nil {
+			fmt.Println(err)
 			return hasilAkhir, err
 		}
 		hasilAkhir = append(hasilAkhir, hasil)
@@ -213,7 +214,7 @@ func (ar AttendanceRepository) GetMyAttendanceSortByLatest(userId int, offset in
 	JOIN
 		users ON attendances.user_id = users.id
 	WHERE 
-		user_id = ? AND attendances.status like ?
+		attendances.user_id = ? AND attendances.status like ?
 	ORDER BY attendances.created_at ASC LIMIT 10 OFFSET ?`, userId, status, offset)
 	if err_query != nil {
 		return hasilAkhir, fmt.Errorf("request wfo not found")
@@ -245,7 +246,7 @@ func (ar AttendanceRepository) GetMyAttendanceSortByLongest(userId int, offset i
 	JOIN
 		users ON attendances.user_id = users.id
 	WHERE 
-		user_id = ? AND attendances.status like ? 
+		attendances.user_id = ? AND attendances.status like ?
 	ORDER BY schedules.date DESC LIMIT 10 OFFSET ?`, userId, status, offset)
 	if err_query != nil {
 		return hasilAkhir, fmt.Errorf("request wfo not found")
