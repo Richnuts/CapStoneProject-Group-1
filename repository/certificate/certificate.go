@@ -75,14 +75,13 @@ func (cer *CertificateRepository) GetUsersCertificates(status string, offset int
 	// var certificates []entities.UsersCertificate
 	result, err1 := cer.db.Query(`
 	SELECT
-		users.id, users.name, users.nik, users.vaccine_status
+		id, name, nik, vaccine_status
 	FROM
 		users
-	JOIN
-		certificates on certificates.user_id = users.id
 	WHERE
-		role = "user" AND users.vaccine_status LIKE ?
-	LIMIT 10 OFFSET ?`, offset, status)
+		vaccine_status LIKE ? AND role = "user" 
+	LIMIT 10 OFFSET ?`, status, offset)
+	fmt.Println(status)
 	if err1 != nil {
 		return hasil, err1
 	}
