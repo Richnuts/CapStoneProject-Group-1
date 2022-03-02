@@ -248,7 +248,9 @@ func (cer *CertificateRepository) GetTotalUsers() (int, error) {
 	SELECT
 		count(id)
 	FROM
-		users `)
+		users
+	WHERE
+		role = "user" `)
 	err_scan := result.Scan(&totalUsers)
 	if err_scan != nil {
 		return 0, err_scan
