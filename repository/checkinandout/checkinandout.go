@@ -42,7 +42,7 @@ func (cc *CheckRepository) GetCheckbyId(id int) (entities.CheckinAndOutResponseF
 	var check entities.CheckinAndOutResponseFormat
 	result, err_check := cc.db.Query(`
 	SELECT
-		schedules.date, attendances.check_in, attendances.check_temperature, attendances.check_out, attendances.check_status
+		CONVERT_TZ(schedules.date, '+00:00', '+7:00'), attendances.check_in, attendances.check_temperature, attendances.check_out, attendances.check_status
 	FROM
 		attendances
 	JOIN
