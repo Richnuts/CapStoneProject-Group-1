@@ -75,12 +75,14 @@ func (cer *CertificateRepository) GetUsersCertificates(status string, offset int
 	// var certificates []entities.UsersCertificate
 	result, err1 := cer.db.Query(`
 	SELECT
-		id, name, nik, vaccine_status
+		users.id, users.name, users.nik, users.vaccine_status
 	FROM
 		users
+	JOIN
+		certificates on certificates.user_id = users.id
 	WHERE
-		role = "user"
-	LIMIT 10 OFFSET ?`, offset)
+		role = "user" AND certificates.status LIKE ?
+	LIMIT 10 OFFSET ?`, offset, status)
 	if err1 != nil {
 		return hasil, err1
 	}
@@ -93,7 +95,7 @@ func (cer *CertificateRepository) GetUsersCertificates(status string, offset int
 		}
 		result1, err_certificates := cer.db.Query(`
 	SELECT
-        certificates.id, certificates.image_url, certificates.vaccine_dose, (select name from users where id = certificates.admin_id) as admin_name, users.vaccine_status, certificates.description
+        certificates.id, certificates.image_url, certificates.vaccine_dose, (select name from users where id = certificates.admin_id) as admin_name, certificates.status, certificates.description
     FROM
         certificates
     JOIN
