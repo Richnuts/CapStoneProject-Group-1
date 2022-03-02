@@ -242,6 +242,20 @@ func (cer *CertificateRepository) GetTotalPage(status string) (int, error) {
 	return int((math.Ceil(float64(page) / float64(10)))), nil
 }
 
+func (cer *CertificateRepository) GetTotalUsers() (int, error) {
+	var totalUsers int
+	result := cer.db.QueryRow(`
+	SELECT
+		count(id)
+	FROM
+		users `)
+	err_scan := result.Scan(&totalUsers)
+	if err_scan != nil {
+		return 0, err_scan
+	}
+	return totalUsers, nil
+}
+
 func (cer *CertificateRepository) GetName(id int) (string, error) {
 	var name string
 	result := cer.db.QueryRow(`

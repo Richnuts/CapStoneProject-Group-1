@@ -13,5 +13,6 @@ type Certificate interface {
 	GetVaccineStatus(userId int) error
 	GetVaccineDose(id int) (int, error)
 	GetTotalPage(status string) (int, error)
+	GetTotalUsers() (int, error)
 	GetName(id int) (string, error)
 }
