@@ -93,7 +93,7 @@ func (cer *CertificateRepository) GetUsersCertificates(status string, offset int
 		}
 		result1, err_certificates := cer.db.Query(`
 	SELECT
-        certificates.id, certificates.image_url, certificates.vaccine_dose, (select name from users where id = certificates.admin_id) as admin_name, certificates.status, certificates.description
+        certificates.id, certificates.image_url, certificates.vaccine_dose, (select name from users where id = certificates.admin_id) as admin_name, users.vaccine_status, certificates.description
     FROM
         certificates
     JOIN
