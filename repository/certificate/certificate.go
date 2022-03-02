@@ -81,7 +81,7 @@ func (cer *CertificateRepository) GetUsersCertificates(status string, offset int
 	JOIN
 		certificates on certificates.user_id = users.id
 	WHERE
-		role = "user" AND certificates.status LIKE ?
+		role = "user" AND users.vaccine_status LIKE ?
 	LIMIT 10 OFFSET ?`, offset, status)
 	if err1 != nil {
 		return hasil, err1
