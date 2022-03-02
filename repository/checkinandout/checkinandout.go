@@ -48,7 +48,7 @@ func (cc *CheckRepository) GetCheckbyId(id int) (entities.CheckinAndOutResponseF
 	JOIN
 		schedules on schedules.id = attendances.schedule_id
 	WHERE
-		id = ?`, id)
+		attendances.id = ?`, id)
 	if err_check != nil {
 		return check, err_check
 	}
