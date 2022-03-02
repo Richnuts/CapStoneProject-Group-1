@@ -74,7 +74,7 @@ func (ar AttendanceRepository) GetPendingAttendance(offset int) ([]entities.Pend
 	var hasilAkhir []entities.PendingAttendance
 	result, err_query := ar.db.Query(`
 	SELECT 
-		attendances.id, CONVERT_TZ(schedules.date, '+00:00', '+7:00'), attendances.schedule_id, (select (total_capacity-capacity) from schedules where id = attendances.id), offices.name, attendances.image_url, attendances.description, CONVERT_TZ(attendances.created_at, '+00:00', '+7:00'), attendances.user_id, users.name, users.email, users.image_url, users.nik, users.vaccine_status, (select name from offices where id = users.office_id)
+		attendances.id, CONVERT_TZ(schedules.date, '+00:00', '+7:00'), attendances.schedule_id, (select (total_capacity-capacity) from schedules where id = attendances.schedule_id), offices.name, attendances.image_url, attendances.description, CONVERT_TZ(attendances.created_at, '+00:00', '+7:00'), attendances.user_id, users.name, users.email, users.image_url, users.nik, users.vaccine_status, (select name from offices where id = users.office_id)
 	FROM 
 		attendances 
 	JOIN
