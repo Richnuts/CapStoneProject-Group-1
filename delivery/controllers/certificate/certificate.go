@@ -144,6 +144,11 @@ func (cer CertificateController) GetUsersCertificates(secret string) echo.Handle
 			fmt.Println("anu", err_get)
 			return c.JSON(http.StatusBadRequest, common.InternalServerError())
 		}
+		var err_totalusers error
+		hasil.TotalUsers, err_totalusers = cer.repository.GetTotalUsers()
+		if err_totalusers != nil {
+			return c.JSON(http.StatusBadRequest, common.InternalServerError())
+		}
 		// menGet total page
 		var err_page error
 		hasil.TotalPage, err_page = cer.repository.GetTotalPage(status)

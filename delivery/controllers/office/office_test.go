@@ -159,10 +159,6 @@ func TestGetOffices(t *testing.T) {
 type mockOfficeRepository struct{}
 
 func (m mockOfficeRepository) GetOffice(officeId int) (entities.Office, error) {
-	var gagal entities.Office
-	if officeId == 2 {
-		return gagal, fmt.Errorf("user not found")
-	}
 	return entities.Office{
 		Id:     1,
 		Name:   "asd",

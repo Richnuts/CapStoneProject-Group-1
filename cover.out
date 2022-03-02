@@ -1,4 +1,15 @@
 mode: set
+sirclo/delivery/controllers/office/office.go:17.54,21.2 1 1
+sirclo/delivery/controllers/office/office.go:23.71,24.36 1 1
+sirclo/delivery/controllers/office/office.go:24.36,27.19 2 1
+sirclo/delivery/controllers/office/office.go:31.3,32.37 2 1
+sirclo/delivery/controllers/office/office.go:27.19,29.4 1 1
+sirclo/delivery/controllers/office/office.go:36.70,37.36 1 1
+sirclo/delivery/controllers/office/office.go:37.36,40.19 2 1
+sirclo/delivery/controllers/office/office.go:44.3,45.17 2 1
+sirclo/delivery/controllers/office/office.go:49.3,50.37 2 1
+sirclo/delivery/controllers/office/office.go:40.19,42.4 1 1
+sirclo/delivery/controllers/office/office.go:45.17,47.4 1 1
 sirclo/delivery/controllers/auth/auth.go:17.46,21.2 1 1
 sirclo/delivery/controllers/auth/auth.go:23.50,24.36 1 1
 sirclo/delivery/controllers/auth/auth.go:24.36,27.47 2 1
@@ -16,14 +27,3 @@ sirclo/delivery/controllers/auth/auth.go:58.3,69.23 4 1
 sirclo/delivery/controllers/auth/auth.go:73.3,73.81 1 1
 sirclo/delivery/controllers/auth/auth.go:54.46,56.4 1 1
 sirclo/delivery/controllers/auth/auth.go:69.23,71.4 1 1
-sirclo/delivery/controllers/office/office.go:17.54,21.2 1 1
-sirclo/delivery/controllers/office/office.go:23.71,24.36 1 1
-sirclo/delivery/controllers/office/office.go:24.36,27.19 2 1
-sirclo/delivery/controllers/office/office.go:31.3,32.37 2 1
-sirclo/delivery/controllers/office/office.go:27.19,29.4 1 1
-sirclo/delivery/controllers/office/office.go:36.70,37.36 1 1
-sirclo/delivery/controllers/office/office.go:37.36,40.19 2 1
-sirclo/delivery/controllers/office/office.go:44.3,45.17 2 1
-sirclo/delivery/controllers/office/office.go:49.3,50.37 2 1
-sirclo/delivery/controllers/office/office.go:40.19,42.4 1 1
-sirclo/delivery/controllers/office/office.go:45.17,47.4 1 1
