@@ -1,6 +1,7 @@
 package attendance
 
 import (
+	"math"
 	"net/http"
 	"sirclo/delivery/common"
 	"sirclo/delivery/controllers/imageLib"
@@ -250,6 +251,12 @@ func (ac AttendanceController) GetPendingAttendance(secret string) echo.HandlerF
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
 		// getting the page
+		officeString := c.QueryParam("office")
+		officeId, err_office := strconv.Atoi(officeString)
+		if err_office != nil {
+			return c.JSON(http.StatusBadGateway, common.CustomResponse(400, "Operation Failed", "Office harus diisi"))
+		}
+		// getting the page
 		pageString := c.QueryParam("page")
 		halaman, err := strconv.Atoi(pageString)
 		if err != nil {
@@ -258,14 +265,14 @@ func (ac AttendanceController) GetPendingAttendance(secret string) echo.HandlerF
 		offset := (halaman - 1) * 10
 
 		// get the attendance
-		hasil, err_get := ac.repository.GetPendingAttendance(offset)
+		hasil, err_get := ac.repository.GetPendingAttendance(offset, officeId)
 		if err_get != nil {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		// get total page
-		page, _ := ac.repository.GetPendingAttendanceTotalPage()
+		countData, _ := ac.repository.GetPendingAttendanceTotalPage(officeId)
 
-		data := entities.PendingAttendancePageFormat{TotalPage: page, Attendance: hasil}
+		data := entities.PendingAttendancePageFormat{TotalPage: int((math.Ceil(float64(countData) / float64(10)))), TotalData: countData, Attendance: hasil}
 		return c.JSON(http.StatusOK, data)
 	}
 }
