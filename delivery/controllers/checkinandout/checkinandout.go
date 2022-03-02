@@ -29,6 +29,11 @@ func (cc CheckController) Checkin(secret string) echo.HandlerFunc {
 		if loginId == 0 {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
+		// check role
+		role := middlewares.GetUserRole(secret, c)
+		if role != "user" {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
 		var CheckinRequest CheckinRequestFormat
 		status := "Approved"
 		// prosess binding text
@@ -56,6 +61,11 @@ func (cc CheckController) Checkout(secret string) echo.HandlerFunc {
 		// check token
 		loginId := middlewares.GetUserId(secret, c)
 		if loginId == 0 {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// check role
+		role := middlewares.GetUserRole(secret, c)
+		if role != "user" {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
 		var CheckoutRequest CheckoutRequestFormat
