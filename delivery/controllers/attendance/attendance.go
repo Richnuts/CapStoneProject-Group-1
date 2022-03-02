@@ -232,7 +232,6 @@ func (ac AttendanceController) GetMyAttendanceSortByLongest(secret string) echo.
 		}
 		// get total page
 		countData, _ := ac.repository.GetMyAttendanceTotalData(loginId, status)
-
 		data := entities.AttendancePageFormat{TotalData: countData, TotalPage: int((math.Ceil(float64(countData) / float64(10)))), Attendance: hasil}
 		return c.JSON(http.StatusOK, data)
 	}
