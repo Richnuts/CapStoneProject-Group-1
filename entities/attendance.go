@@ -44,6 +44,7 @@ type AttendanceGetFormat struct {
 
 type AttendancePageFormat struct {
 	TotalPage  int                   `json:"total_page" form:"total_page"`
+	TotalData  int                   `json:"total_data" form:"total_data"`
 	Attendance []AttendanceGetFormat `json:"attendance" form:"attendance"`
 }
 type PendingAttendancePageFormat struct {
