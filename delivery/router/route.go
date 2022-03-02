@@ -50,7 +50,8 @@ func RegisterPath(
 	e.GET("/offices", officeController.GetOffices(secret), middlewares.JWTMiddleware())
 	e.GET("/offices/:id", officeController.GetOffice(secret), middlewares.JWTMiddleware())
 	//check in and out
-	e.GET("/check/:id", checkController.GetCheckById(secret), middlewares.JWTMiddleware())
+	e.GET("/checks", checkController.GetAllCheck(secret), middlewares.JWTMiddleware())
+	e.GET("/checks/:id", checkController.GetCheckById(secret), middlewares.JWTMiddleware())
 	e.PUT("/checkin", checkController.Checkin(secret), middlewares.JWTMiddleware())
 	e.PUT("/checkout", checkController.Checkout(secret), middlewares.JWTMiddleware())
 

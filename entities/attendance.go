@@ -12,12 +12,27 @@ type Attendance struct {
 }
 
 type CheckinAndOutResponseFormat struct {
+	Id               int      `json:"id" form:"id"`
 	ScheduleDate     string   `json:"scheduledate" form:"scheduledate"`
 	Checkin          *string  `json:"checkin" form:"checkin"`
 	Checkout         *string  `json:"checkout" form:"checkout"`
 	CheckTemperature *float64 `json:"checktemperature" form:"checktemperature"`
 	CheckStatus      *string  `json:"checkstatus" form:"checkstatus"`
 }
+
+type GetAllCheck struct {
+	Id            int    `json:"id" form:"id"`
+	Name          string `json:"name" form:"name"`
+	Nik           string `json:"nik" form:"nik"`
+	VaccineStatus string `json:"vaccinestatus" form:"vaccinestatus"`
+	CheckData     []CheckinAndOutResponseFormat
+}
+
+type GetAllCheckWithPage struct {
+	AllCheck  []GetAllCheck
+	TotalPage int `json:"totalpage" form:"totalpage"`
+}
+
 type PendingAttendance struct {
 	Id             int                `json:"id" form:"id"`
 	ScheduleId     int                `json:"schedule_id" form:"schedule_id"`
