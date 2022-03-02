@@ -120,7 +120,7 @@ func (cc *CheckRepository) GetCheckDate(id int) error {
 	JOIN
 		schedules ON attendances.schedule_id = schedules.id 
 	WHERE
-		attendances.id = ? AND date(schedules.date) = current_date()`, id)
+		attendances.id = ? AND date(CONVERT_TZ(schedules.date, '+00:00', '+7:00')) = date(CONVERT_TZ(now(), '+00:00', '+7:00'))`, id)
 	if err_check != nil {
 		return err_check
 	}
