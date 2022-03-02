@@ -70,7 +70,7 @@ func (ar AttendanceRepository) EditAttendance(attendanceId int, adminId int, sta
 	return nil
 }
 
-func (ar AttendanceRepository) GetPendingAttendance(offset int) ([]entities.PendingAttendance, error) {
+func (ar AttendanceRepository) GetPendingAttendance(offset int, officeId int) ([]entities.PendingAttendance, error) {
 	var hasilAkhir []entities.PendingAttendance
 	result, err_query := ar.db.Query(`
 	SELECT 
@@ -84,9 +84,9 @@ func (ar AttendanceRepository) GetPendingAttendance(offset int) ([]entities.Pend
 	JOIN
 		users ON attendances.user_id = users.id
 	WHERE 
-		attendances.status = ?
+		attendances.status = ? AND schedules.office_id = ?
 	ORDER BY attendances.created_at ASC
-	LIMIT 10 OFFSET ?`, "Pending", offset)
+	LIMIT 10 OFFSET ?`, "Pending", officeId, offset)
 	if err_query != nil {
 		return hasilAkhir, fmt.Errorf("request wfo not found")
 	}
@@ -102,20 +102,22 @@ func (ar AttendanceRepository) GetPendingAttendance(offset int) ([]entities.Pend
 	return hasilAkhir, nil
 }
 
-func (ar AttendanceRepository) GetPendingAttendanceTotalPage() (int, error) {
+func (ar AttendanceRepository) GetPendingAttendanceTotalData(officeId int) (int, error) {
 	var hasil int
 	result := ar.db.QueryRow(`
 	SELECT 
-		count(id)
+		count(attendances.id)
 	FROM
 		attendances
+	JOIN
+		schedules ON attendances.schedule_id = schedules.id
 	WHERE
-		status = ?`, "Pending")
+		attendances.status = ? AND schedules.office_id = ?`, "Pending", officeId)
 	err := result.Scan(&hasil)
 	if err != nil {
 		return hasil, err
 	}
-	return int((math.Ceil(float64(hasil) / float64(10)))), nil
+	return hasil, nil
 }
 
 func (ar AttendanceRepository) CheckCapacity(scheduleId int) (int, error) {
