@@ -14,7 +14,7 @@ type Attendance interface {
 	GetAttendanceById(attendanceId int) (entities.AttendanceGetFormat, error)
 	GetMyAttendanceSortByLatest(userId int, offset int, status string) ([]entities.AttendanceGetFormat, error)  // created at
 	GetMyAttendanceSortByLongest(userId int, offset int, status string) ([]entities.AttendanceGetFormat, error) // date
-	GetMyAttendanceTotalPage(userId int, status string) (int, error)
+	GetMyAttendanceTotalData(userId int, status string) (int, error)
 	GetUserAttendanceStatus(userId int, scheduleId int) error
 	GetUserVaccineStatus(userId int) error
 	CheckCapacity(scheduleId int) (int, error)

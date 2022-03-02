@@ -172,9 +172,9 @@ func (ac AttendanceController) GetMyAttendance(secret string) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		// get total page
-		page, _ := ac.repository.GetMyAttendanceTotalPage(loginId, status)
+		countData, _ := ac.repository.GetMyAttendanceTotalData(loginId, status)
 
-		data := entities.AttendancePageFormat{TotalPage: page, Attendance: hasil}
+		data := entities.AttendancePageFormat{TotalData: countData, TotalPage: int((math.Ceil(float64(countData) / float64(10)))), Attendance: hasil}
 
 		return c.JSON(http.StatusOK, data)
 	}
@@ -202,9 +202,9 @@ func (ac AttendanceController) GetMyAttendanceSortByLatest(secret string) echo.H
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		// get total page
-		page, _ := ac.repository.GetMyAttendanceTotalPage(loginId, status)
+		countData, _ := ac.repository.GetMyAttendanceTotalData(loginId, status)
 
-		data := entities.AttendancePageFormat{TotalPage: page, Attendance: hasil}
+		data := entities.AttendancePageFormat{TotalData: countData, TotalPage: int((math.Ceil(float64(countData) / float64(10)))), Attendance: hasil}
 		return c.JSON(http.StatusOK, data)
 	}
 }
@@ -231,9 +231,9 @@ func (ac AttendanceController) GetMyAttendanceSortByLongest(secret string) echo.
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		// get total page
-		page, _ := ac.repository.GetMyAttendanceTotalPage(loginId, status)
+		countData, _ := ac.repository.GetMyAttendanceTotalData(loginId, status)
 
-		data := entities.AttendancePageFormat{TotalPage: page, Attendance: hasil}
+		data := entities.AttendancePageFormat{TotalData: countData, TotalPage: int((math.Ceil(float64(countData) / float64(10)))), Attendance: hasil}
 		return c.JSON(http.StatusOK, data)
 	}
 }

@@ -3,7 +3,6 @@ package attendance
 import (
 	"database/sql"
 	"fmt"
-	"math"
 	"sirclo/entities"
 	"time"
 )
@@ -185,7 +184,7 @@ func (ar AttendanceRepository) GetMyAttendance(userId int, offset int, status st
 	return hasilAkhir, nil
 }
 
-func (ar AttendanceRepository) GetMyAttendanceTotalPage(userId int, status string) (int, error) {
+func (ar AttendanceRepository) GetMyAttendanceTotalData(userId int, status string) (int, error) {
 	var hasil int
 	status = "%" + status + "%"
 	result := ar.db.QueryRow(`
@@ -199,7 +198,7 @@ func (ar AttendanceRepository) GetMyAttendanceTotalPage(userId int, status strin
 	if err != nil {
 		return hasil, err
 	}
-	return int((math.Ceil(float64(hasil) / float64(10)))), nil
+	return hasil, nil
 }
 
 func (ar AttendanceRepository) GetMyAttendanceSortByLatest(userId int, offset int, status string) ([]entities.AttendanceGetFormat, error) {
