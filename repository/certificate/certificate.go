@@ -232,9 +232,9 @@ func (cer *CertificateRepository) GetTotalPage(status string) (int, error) {
 	SELECT
 		count(id)
 	FROM
-		certificates 
+		users 
 	WHERE 
-		status LIKE ?`, status)
+		vaccine_status LIKE ?`, status)
 	err_scan := result.Scan(&page)
 	if err_scan != nil {
 		return 0, err_scan
