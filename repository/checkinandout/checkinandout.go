@@ -42,9 +42,11 @@ func (cc *CheckRepository) GetCheckbyId(id int) (entities.CheckinAndOutResponseF
 	var check entities.CheckinAndOutResponseFormat
 	result, err_check := cc.db.Query(`
 	SELECT
-		id, check_in, check_temperature, check_out, check_status
+		schedules.date, attendances.check_in, attendances.check_temperature, attendances.check_out, attendances.check_status
 	FROM
 		attendances
+	JOIN
+		schedules on schedules.id = attendances.schedule_id
 	WHERE
 		id = ?`, id)
 	if err_check != nil {
@@ -52,7 +54,7 @@ func (cc *CheckRepository) GetCheckbyId(id int) (entities.CheckinAndOutResponseF
 	}
 	defer result.Close()
 	for result.Next() {
-		err := result.Scan(&id, &check.Checkin, &check.CheckTemperature, &check.Checkout, &check.CheckStatus)
+		err := result.Scan(&check.ScheduleDate, &check.Checkin, &check.CheckTemperature, &check.Checkout, &check.CheckStatus)
 		if err != nil {
 			return check, err
 		}

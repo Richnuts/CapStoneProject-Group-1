@@ -12,6 +12,7 @@ type Attendance struct {
 }
 
 type CheckinAndOutResponseFormat struct {
+	ScheduleDate     string   `json:"scheduledate" form:"scheduledate"`
 	Checkin          *string  `json:"checkin" form:"checkin"`
 	Checkout         *string  `json:"checkout" form:"checkout"`
 	CheckTemperature *float64 `json:"checktemperature" form:"checktemperature"`
