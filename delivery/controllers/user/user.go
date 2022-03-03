@@ -28,11 +28,11 @@ func (uc UserController) GetProfile(secret string) echo.HandlerFunc {
 		// check token
 		loginId := middlewares.GetUserId(secret, c)
 		if loginId == 0 {
-			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+			return c.JSON(http.StatusUnauthorized, common.Unauthorized())
 		}
 		result, err := uc.repository.GetUser(loginId)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, common.BadRequest())
+			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
 
 		return c.JSON(http.StatusOK, result)
@@ -44,7 +44,7 @@ func (uc UserController) GetUser(secret string) echo.HandlerFunc {
 		// check token
 		loginId := middlewares.GetUserId(secret, c)
 		if loginId == 0 {
-			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+			return c.JSON(http.StatusUnauthorized, common.Unauthorized())
 		}
 		// check role
 		role := middlewares.GetUserRole(secret, c)
@@ -59,7 +59,7 @@ func (uc UserController) GetUser(secret string) echo.HandlerFunc {
 		result, err := uc.repository.GetUser(userid)
 
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, common.BadRequest())
+			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
 
 		return c.JSON(http.StatusOK, result)
@@ -71,7 +71,7 @@ func (uc UserController) DeleteUser(secret string) echo.HandlerFunc {
 		// check token
 		loginId := middlewares.GetUserId(secret, c)
 		if loginId == 0 {
-			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+			return c.JSON(http.StatusUnauthorized, common.Unauthorized())
 		}
 		// getting the id
 		userId, err := strconv.Atoi(c.Param("id"))
@@ -79,12 +79,12 @@ func (uc UserController) DeleteUser(secret string) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
 		if userId != loginId {
-			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+			return c.JSON(http.StatusForbidden, common.CustomResponse(403, "Operation Failed", "Token and User Id not Match"))
 		}
 		err_repo := uc.repository.DeleteUser(userId)
 
 		if err_repo != nil {
-			return c.JSON(http.StatusBadRequest, common.BadRequest())
+			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("berhasil menghapus user"))
 	}
@@ -95,7 +95,7 @@ func (uc UserController) EditUser(secret string) echo.HandlerFunc {
 		// check token
 		loginId := middlewares.GetUserId(secret, c)
 		if loginId == 0 {
-			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+			return c.JSON(http.StatusUnauthorized, common.Unauthorized())
 		}
 		// getting the id
 		userId, err := strconv.Atoi(c.Param("id"))
@@ -104,7 +104,7 @@ func (uc UserController) EditUser(secret string) echo.HandlerFunc {
 		}
 		//checking tokenId = userId
 		if loginId != userId {
-			return c.JSON(http.StatusUnauthorized, common.Unauthorized())
+			return c.JSON(http.StatusForbidden, common.CustomResponse(403, "Operation Failed", "Token and User Id not Match"))
 		}
 		var userRequest UserRequestFormat
 		// prosess binding text
@@ -113,7 +113,7 @@ func (uc UserController) EditUser(secret string) echo.HandlerFunc {
 		}
 		theUrl := uc.repository.GetUserImageUrl(userId)
 		if theUrl == "" {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "user image not found"))
+			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "user image not found"))
 		}
 		// prosess binding image
 		fileData, fileInfo, err_binding_image := c.Request().FormFile("image")
@@ -135,7 +135,7 @@ func (uc UserController) EditUser(secret string) echo.HandlerFunc {
 			var err_upload_photo error
 			theUrl, err_upload_photo = imageLib.UploadImage("user", fileName, fileData)
 			if err_upload_photo != nil {
-				return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "Upload Image Failed"))
+				return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 			}
 		}
 

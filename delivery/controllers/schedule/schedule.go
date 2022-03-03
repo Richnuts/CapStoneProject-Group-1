@@ -45,7 +45,7 @@ func (sr ScheduleController) CreateSchedule(secret string) echo.HandlerFunc {
 		// create schedule
 		err_schedule := sr.repository.CreateSchedule(scheduleRequest.Month, scheduleRequest.Year, scheduleRequest.TotalCapacity, scheduleRequest.OfficeId)
 		if err_schedule != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "failed creating schedule", "duplicate entry"))
+			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "failed creating schedule", "duplicate entry"))
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("berhasil membuat jadwal"))
 	}
@@ -76,7 +76,7 @@ func (sr ScheduleController) EditSchedule(secret string) echo.HandlerFunc {
 		// mengedit schedule
 		err_edit := sr.repository.EditSchedule(scheduleId, scheduleEdit.TotalCapacity)
 		if err_edit != nil {
-			return c.JSON(http.StatusBadRequest, common.BadRequest())
+			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("berhasil mengedit jadwal"))
 	}
@@ -105,7 +105,7 @@ func (sr ScheduleController) GetSchedule(secret string) echo.HandlerFunc {
 		var data entities.ScheduleResponse
 		data, err_get := sr.repository.GetSchedule(scheduleId, offset)
 		if err_get != nil {
-			return c.JSON(http.StatusBadRequest, common.InternalServerError())
+			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
 		gmt, _ := time.LoadLocation("Asia/Jakarta")
 		data.Date = data.Date.In(gmt)
@@ -143,7 +143,7 @@ func (sr ScheduleController) GetSchedulesByMonthAndYear(secret string) echo.Hand
 		// mengGet schedule
 		data, err_get := sr.repository.GetSchedulesByMonthAndYear(month, year, officeId)
 		if err_get != nil {
-			return c.JSON(http.StatusBadRequest, common.InternalServerError())
+			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
 		return c.JSON(http.StatusOK, data)
 	}
