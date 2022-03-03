@@ -77,7 +77,7 @@ func (ac AttendanceController) CreateAttendance(secret string) echo.HandlerFunc 
 		var err_upload_photo error
 		theUrl, err_upload_photo := imageLib.UploadImage("attendance", fileName, fileData)
 		if err_upload_photo != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "Upload Image Failed"))
+			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "bad request", "Upload Image Failed"))
 		}
 		err_create := ac.repository.CreateAttendance(loginId, attendanceRequest.ScheduleId, attendanceRequest.Description, theUrl)
 		if err_create != nil {
@@ -115,15 +115,15 @@ func (ac AttendanceController) EditAttendance(secret string) echo.HandlerFunc {
 		// check capacity
 		capacity, err_capacity := ac.repository.CheckCapacity(attendanceRequest.ScheduleId)
 		if err_capacity != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "gagal mengecheck capacity"))
+			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "gagal mengecheck capacity"))
 		}
 		if capacity < 1 {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "Kapasitas telah penuh"))
+			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "Kapasitas telah penuh"))
 		}
 		// edit the status
 		err_edit := ac.repository.EditAttendance(attendanceId, loginId, attendanceRequest.Status, attendanceRequest.StatusInfo)
 		if err_edit != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "gagal merubah status / request sudah diedit"))
+			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "gagal merubah status / request sudah diedit"))
 		}
 		return c.JSON(http.StatusOK, common.CustomResponse(200, "operation success", "berhasil merubah status request WFO"))
 	}
@@ -144,7 +144,7 @@ func (ac AttendanceController) GetAttendanceById(secret string) echo.HandlerFunc
 		// get the attendance
 		hasil, err_get := ac.repository.GetAttendanceById(attendanceId)
 		if err_get != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		return c.JSON(http.StatusOK, hasil)
 	}
@@ -169,7 +169,7 @@ func (ac AttendanceController) GetMyAttendance(secret string) echo.HandlerFunc {
 		// get the attendance
 		hasil, err_get := ac.repository.GetMyAttendance(loginId, offset, status)
 		if err_get != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		// get total page
 		countData, _ := ac.repository.GetMyAttendanceTotalData(loginId, status)
@@ -199,7 +199,7 @@ func (ac AttendanceController) GetMyAttendanceSortByLatest(secret string) echo.H
 		// get the attendance
 		hasil, err_get := ac.repository.GetMyAttendanceSortByLatest(loginId, offset, status)
 		if err_get != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		// get total page
 		countData, _ := ac.repository.GetMyAttendanceTotalData(loginId, status)
@@ -228,7 +228,7 @@ func (ac AttendanceController) GetMyAttendanceSortByLongest(secret string) echo.
 		// get the attendance
 		hasil, err_get := ac.repository.GetMyAttendanceSortByLongest(loginId, offset, status)
 		if err_get != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		// get total page
 		countData, _ := ac.repository.GetMyAttendanceTotalData(loginId, status)
@@ -266,7 +266,7 @@ func (ac AttendanceController) GetPendingAttendance(secret string) echo.HandlerF
 		// get the attendance
 		hasil, err_get := ac.repository.GetPendingAttendance(offset, officeId)
 		if err_get != nil {
-			return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		// get total page
 		countData, _ := ac.repository.GetPendingAttendanceTotalData(officeId)
