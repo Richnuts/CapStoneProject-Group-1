@@ -256,12 +256,6 @@ func (ac AttendanceController) GetPendingAttendance(secret string) echo.HandlerF
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "Operation Failed", "office wajib diisi"))
 		}
 		// getting the page
-		officeString := c.QueryParam("office")
-		officeId, err_office := strconv.Atoi(officeString)
-		if err_office != nil {
-			return c.JSON(http.StatusBadGateway, common.CustomResponse(400, "Operation Failed", "Office harus diisi"))
-		}
-		// getting the page
 		pageString := c.QueryParam("page")
 		halaman, err := strconv.Atoi(pageString)
 		if err != nil {
@@ -275,11 +269,7 @@ func (ac AttendanceController) GetPendingAttendance(secret string) echo.HandlerF
 			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
 		}
 		// get total page
-<<<<<<< HEAD
-		countData, _ := ac.repository.GetPendingAttendanceTotalPage(officeId)
-=======
 		countData, _ := ac.repository.GetPendingAttendanceTotalData(officeId)
->>>>>>> 44f006dc7bcad53530e865c7c5aefcc46aa22a08
 
 		data := entities.PendingAttendancePageFormat{TotalPage: int((math.Ceil(float64(countData) / float64(10)))), TotalData: countData, Attendance: hasil}
 		return c.JSON(http.StatusOK, data)
