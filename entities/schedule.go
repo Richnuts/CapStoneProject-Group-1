@@ -17,5 +17,6 @@ type ScheduleResponse struct {
 	Capacity      int                  `json:"capacity" form:"capacity"`
 	Office        string               `json:"office" form:"office"`
 	TotalPage     int                  `json:"total_page" form:"total_page"`
+	TotalData     int                  `json:"total_data" form:"total_data"`
 	Attendance    []UserResponseFormat `json:"user" form:"user"`
 }

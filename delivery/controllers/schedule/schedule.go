@@ -1,6 +1,7 @@
 package schedule
 
 import (
+	"math"
 	"net/http"
 	"sirclo/delivery/common"
 	"sirclo/delivery/middlewares"
@@ -115,8 +116,8 @@ func (sr ScheduleController) GetSchedule(secret string) echo.HandlerFunc {
 		gmt, _ := time.LoadLocation("Asia/Jakarta")
 		data.Date = data.Date.In(gmt)
 		// menGet total page
-		data.TotalPage, _ = sr.repository.GetTotalPage(scheduleId)
-
+		data.TotalData, _ = sr.repository.GetTotalData(scheduleId)
+		data.TotalPage = int((math.Ceil(float64(data.TotalData) / float64(10))))
 		return c.JSON(http.StatusOK, data)
 	}
 }

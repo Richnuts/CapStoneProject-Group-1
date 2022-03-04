@@ -3,7 +3,6 @@ package schedule
 import (
 	"database/sql"
 	"fmt"
-	"math"
 	"sirclo/entities"
 	"time"
 )
@@ -97,7 +96,7 @@ func (sr *ScheduleRepository) GetSchedule(scheduleId int, offset int) (entities.
 	return hasil, nil
 }
 
-func (sr *ScheduleRepository) GetTotalPage(scheduleId int) (int, error) {
+func (sr *ScheduleRepository) GetTotalData(scheduleId int) (int, error) {
 	var page int
 	result := sr.db.QueryRow(`
 	SELECT
@@ -112,7 +111,7 @@ func (sr *ScheduleRepository) GetTotalPage(scheduleId int) (int, error) {
 	if err_scan != nil {
 		return 0, err_scan
 	}
-	return int((math.Ceil(float64(page) / float64(10)))), nil
+	return page, nil
 }
 
 func (sr *ScheduleRepository) GetSchedulesByMonthAndYear(month int, year int, officeId int) ([]entities.Schedule, error) {
