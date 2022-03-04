@@ -42,10 +42,15 @@ func (sr ScheduleController) CreateSchedule(secret string) echo.HandlerFunc {
 		if scheduleRequest.TotalCapacity == 0 {
 			scheduleRequest.TotalCapacity = 50
 		}
+		// check schedule
+		kosong, _ := sr.repository.GetSchedulesByMonthAndYear(int(scheduleRequest.Month), scheduleRequest.Year, scheduleRequest.OfficeId)
+		if kosong != nil {
+			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "failed creating schedule", "duplicate entry"))
+		}
 		// create schedule
 		err_schedule := sr.repository.CreateSchedule(scheduleRequest.Month, scheduleRequest.Year, scheduleRequest.TotalCapacity, scheduleRequest.OfficeId)
 		if err_schedule != nil {
-			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "failed creating schedule", "duplicate entry"))
+			return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "failed creating schedule", "server error"))
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("berhasil membuat jadwal"))
 	}

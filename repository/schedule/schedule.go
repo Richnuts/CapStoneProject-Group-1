@@ -107,7 +107,7 @@ func (sr *ScheduleRepository) GetTotalPage(scheduleId int) (int, error) {
 	JOIN
 		attendances ON users.id = attendances.user_id
 	WHERE 
-		attendances.schedule_id = ?`, scheduleId)
+		attendances.schedule_id = ? AND attendances.status = ?`, scheduleId, "Approved")
 	err_scan := result.Scan(&page)
 	if err_scan != nil {
 		return 0, err_scan
