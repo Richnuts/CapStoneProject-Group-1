@@ -17,12 +17,41 @@ import (
 )
 
 func TestCreateSchedule(t *testing.T) {
-	t.Run("Success Creating Schedule", func(t *testing.T) {
+	t.Run("Failed Create Schedule Because Server Error", func(t *testing.T) {
+		e := echo.New()
+		requestBody, _ := json.Marshal(map[string]interface{}{
+			"Year":     2222,
+			"Month":    2,
+			"OfficeId": 1,
+		})
+		token, err := middlewares.CreateToken(1, "admin")
+		if err != nil {
+			panic(err)
+		}
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(requestBody))
+		res := httptest.NewRecorder()
+		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
+		req.Header.Set("Content-Type", "application/json")
+		context := e.NewContext(req, res)
+		context.SetPath("/schedules")
+
+		ScheduleController := New(mockScheduleRepository{})
+		if assert.NoError(t, middlewares.JWTMiddleware()(ScheduleController.CreateSchedule("rahasia"))(context)) {
+			bodyResponses := res.Body.String()
+			var response common.DefaultResponse
+			err := json.Unmarshal([]byte(bodyResponses), &response)
+			if err != nil {
+				assert.Error(t, err, "error")
+			}
+			assert.Equal(t, 200, res.Code)
+		}
+	})
+	t.Run("Failed Creating Schedule Duplicate Entry", func(t *testing.T) {
 		e := echo.New()
 		requestBody, _ := json.Marshal(map[string]interface{}{
 			"Year":           2022,
 			"Total_capacity": 50,
-			"Month":          2,
+			"Month":          1,
 			"OfficeId":       1,
 		})
 		token, err := middlewares.CreateToken(1, "admin")
@@ -44,7 +73,7 @@ func TestCreateSchedule(t *testing.T) {
 			if err != nil {
 				assert.Error(t, err, "error")
 			}
-			assert.Equal(t, http.StatusOK, res.Code)
+			assert.Equal(t, 500, res.Code)
 		}
 	})
 	t.Run("Failed Create Schedule Because Wrong Role", func(t *testing.T) {
@@ -135,7 +164,7 @@ func TestCreateSchedule(t *testing.T) {
 			assert.Equal(t, 400, res.Code)
 		}
 	})
-	t.Run("Failed Create Schedule Because Failed Duplicate Entry", func(t *testing.T) {
+	t.Run("Failed Create Schedule Because Server Error", func(t *testing.T) {
 		e := echo.New()
 		requestBody, _ := json.Marshal(map[string]interface{}{
 			"Year":     2222,
@@ -626,7 +655,10 @@ func (m mockScheduleRepository) GetTotalPage(scheduleId int) (int, error) {
 
 func (m mockScheduleRepository) GetSchedulesByMonthAndYear(month int, year int, officeId int) ([]entities.Schedule, error) {
 	if month == 3 {
-		return []entities.Schedule{}, fmt.Errorf("failed")
+		return nil, fmt.Errorf("failed")
+	}
+	if month == 2 {
+		return nil, nil
 	}
 	return []entities.Schedule{}, nil
 }
