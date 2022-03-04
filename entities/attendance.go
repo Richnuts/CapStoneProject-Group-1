@@ -33,6 +33,19 @@ type GetAllCheckWithPage struct {
 	TotalPage int `json:"totalpage" form:"totalpage"`
 }
 
+type GetCheckbyDate struct {
+	Id            int    `json:"id" form:"id"`
+	Name          string `json:"name" form:"name"`
+	Nik           string `json:"nik" form:"nik"`
+	VaccineStatus string `json:"vaccinestatus" form:"vaccinestatus"`
+	CheckData     CheckinAndOutResponseFormat
+}
+
+type GetCheckbyDateWithPage struct {
+	UsersCheck []GetCheckbyDate
+	TotalPage  int `json:"totalpage" form:"totalpage"`
+}
+
 type PendingAttendance struct {
 	Id             int                `json:"id" form:"id"`
 	ScheduleId     int                `json:"schedule_id" form:"schedule_id"`
