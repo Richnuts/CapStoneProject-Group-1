@@ -30,8 +30,13 @@
 </details>
 
 <details>
-<summary>🛠️ Features</summary>
+<summary>MYSQL Schema</summary>
+<img src="Mysql_Schema.jpg">
+</details>
+
 <details>
+<summary>🛠️ Features</summary>
+<br><details>
 <summary>🔒 &nbsp;Authentication</summary>
   
 | Feature User | Endpoint | Query Param | Request Body | JWT Token | Admin Only | Fungsi |
@@ -118,6 +123,8 @@
 
 </details>
 
+▶ [OpenAPI](https://app.swaggerhub.com/apis-docs/mufidi-a/capstone-group-1/1.0.0)
+
 # How to Use
 
 ### 1. Install
@@ -136,6 +143,12 @@ touch .env
 
 ```bash
 go run main.go
+```
+
+### 4. Run unit testing
+
+```bash
+go test ./delivery/... -coverprofile=cover.out && go tool cover -html=cover.out
 ```
 
 ## Contact
