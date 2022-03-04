@@ -6,32 +6,23 @@
   <a href="">
     <img src="https://safety-protocol.vercel.app/static/media/logo.81a1f7af00ea4bce08e00455cc40f4f5.svg">
   </a>
-  <p align="center">
-    Sebuah aplikasi New Normal Tracker App yang menggunakan RESTful API
-  </p>
 </div>
 
-### 🛠 &nbsp;Build App & Database
-
-![AWS](https://img.shields.io/badge/-AWS-05122A?style=flat&logo=amazon)&nbsp;
-![Docker](https://img.shields.io/badge/-Docker-05122A?style=flat&logo=docker)&nbsp;
-![GitHub](https://img.shields.io/badge/-GitHub-05122A?style=flat&logo=github)&nbsp;
-![Golang](https://img.shields.io/badge/-Golang-05122A?style=flat&logo=go&logoColor=4479A1)&nbsp;
-![JSON](https://img.shields.io/badge/-JSON-05122A?style=flat&logo=json&logoColor=000000)&nbsp;
-![MySQL](https://img.shields.io/badge/-MySQL-05122A?style=flat&logo=mysql&logoColor=4479A1)&nbsp;
-![Postman](https://img.shields.io/badge/-Postman-05122A?style=flat&logo=postman)&nbsp;
-![Visual Studio Code](https://img.shields.io/badge/-Visual%20Studio%20Code-05122A?style=flat&logo=visual-studio-code&logoColor=007ACC)&nbsp;
-
 ## 💻 &nbsp;About The Project
-
+Safety Protocol App merupakan sebuah aplikasi New Normal Tracker App yang menggunakan RESTful API.
 <details>
-<summary>ERD</summary>
+<summary>📖 ERD</summary>
 <img src="group_project_capstone_ERD.jpg">
 </details>
 
 <details>
-<summary>🛠️ Features</summary>
+<summary>📖 MYSQL Schema</summary>
+<img src="Mysql_Schema.jpg">
+</details>
+
 <details>
+<summary>🛠️ Features</summary>
+<br><details>
 <summary>🔒 &nbsp;Authentication</summary>
   
 | Feature User | Endpoint | Query Param | Request Body | JWT Token | Admin Only | Fungsi |
@@ -118,30 +109,53 @@
 
 </details>
 
+## 📖 Documentation
+For a complete documentation, you can see OpenAPI documentation [here](https://app.swaggerhub.com/apis-docs/mufidi-a/capstone-group-1/1.0.0)
+
 # How to Use
 
-### 1. Install
-
+### 1. Install app
 ```bash
 git clone https://github.com/Richnuts/CapStoneProject-Group-1.git
 ```
 
-### 2 Set config .env
-
+### 2 Set .env configuration
 ```bash
-touch .env
+AWS_Region=
+AWS_Access_key_ID=
+AWS_Secret_access_key=
+AWS_Bucket=
+SECRET=
+Port = 
+DB_Driver = 
+DB_Name = 
+DB_Address = 
+DB_Port = 
+DB_Username = 
+DB_Password = 
 ```
 
 ### 3. Run app
-
 ```bash
 go run main.go
 ```
 
+### 4. Run unit testing
+```bash
+go test ./delivery/... -coverprofile=cover.out && go tool cover -html=cover.out
+```
+
+## 🛠 &nbsp;Build App & Database
+![AWS](https://img.shields.io/badge/-AWS-05122A?style=flat&logo=amazon)&nbsp;
+![Docker](https://img.shields.io/badge/-Docker-05122A?style=flat&logo=docker)&nbsp;
+![GitHub](https://img.shields.io/badge/-GitHub-05122A?style=flat&logo=github)&nbsp;
+![Golang](https://img.shields.io/badge/-Golang-05122A?style=flat&logo=go&logoColor=4479A1)&nbsp;
+![JSON](https://img.shields.io/badge/-JSON-05122A?style=flat&logo=json&logoColor=000000)&nbsp;
+![MySQL](https://img.shields.io/badge/-MySQL-05122A?style=flat&logo=mysql&logoColor=4479A1)&nbsp;
+![Postman](https://img.shields.io/badge/-Postman-05122A?style=flat&logo=postman)&nbsp;
+![Visual Studio Code](https://img.shields.io/badge/-Visual%20Studio%20Code-05122A?style=flat&logo=visual-studio-code&logoColor=007ACC)&nbsp;
+
 ## Contact
 
-[![Linkedin](https://img.shields.io/badge/-Mufidi-05122A?style=flat&logo=linkedin&logoColor=blue)](https://www.linkedin.com/in/muffidi/)
 [![GitHub](https://img.shields.io/badge/-Mufidi-05122A?style=flat&logo=github&logoColor=black)](https://github.com/mufidi-a)
-
-[![Linkedin](https://img.shields.io/badge/-Richap-05122A?style=flat&logo=linkedin&logoColor=blue)](https://www.linkedin.com/in/excelrichap/)
 [![GitHub](https://img.shields.io/badge/-Richap-05122A?style=flat&logo=github&logoColor=black)](https://github.com/Richnuts)

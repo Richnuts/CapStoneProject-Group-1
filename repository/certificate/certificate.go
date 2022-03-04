@@ -234,7 +234,7 @@ func (cer *CertificateRepository) GetTotalPage(status string) (int, error) {
 	FROM
 		users 
 	WHERE 
-		vaccine_status LIKE ?`, status)
+		role = "user" AND vaccine_status LIKE ?`, status)
 	err_scan := result.Scan(&page)
 	if err_scan != nil {
 		return 0, err_scan

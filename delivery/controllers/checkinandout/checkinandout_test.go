@@ -57,8 +57,13 @@ func (m mockCheckRepository) Checkout(attendanceId, userId int) error {
 	return nil
 }
 
-func (m mockCheckRepository) GetAllCheck(offset int) ([]entities.GetAllCheck, error) {
-	var hasil []entities.GetAllCheck
+// func (m mockCheckRepository) GetAllCheck(offset int) ([]entities.GetAllCheck, error) {
+// 	var hasil []entities.GetAllCheck
+// 	return hasil, nil
+// }
+
+func (m mockCheckRepository) GetAllCheck(id, offset int) ([]entities.GetCheckbyDate, error) {
+	var hasil []entities.GetCheckbyDate
 	return hasil, nil
 }
 
