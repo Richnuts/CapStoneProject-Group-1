@@ -25,7 +25,7 @@ func (oc OfficeController) GetOffices(secret string) echo.HandlerFunc {
 		// check token
 		loginId := middlewares.GetUserId(secret, c)
 		if loginId == 0 {
-			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+			return c.JSON(http.StatusUnauthorized, common.Unauthorized())
 		}
 		// getting offices
 		data, _ := oc.repository.GetOffices()
@@ -38,12 +38,12 @@ func (oc OfficeController) GetOffice(secret string) echo.HandlerFunc {
 		// check token
 		loginId := middlewares.GetUserId(secret, c)
 		if loginId == 0 {
-			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+			return c.JSON(http.StatusUnauthorized, common.Unauthorized())
 		}
 		// getting the id
 		officeId, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, common.BadRequest())
+			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "Operation Failed", "Failed to convert parameter :id"))
 		}
 		// getting office
 		data, _ := oc.repository.GetOffice(officeId)

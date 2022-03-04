@@ -29,6 +29,11 @@ func (cc CheckController) Checkin(secret string) echo.HandlerFunc {
 		if loginId == 0 {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
+		// check role
+		role := middlewares.GetUserRole(secret, c)
+		if role != "user" {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
 		var CheckinRequest CheckinRequestFormat
 		status := "Approved"
 		// prosess binding text
@@ -58,6 +63,11 @@ func (cc CheckController) Checkout(secret string) echo.HandlerFunc {
 		if loginId == 0 {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
+		// check role
+		role := middlewares.GetUserRole(secret, c)
+		if role != "user" {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
 		var CheckoutRequest CheckoutRequestFormat
 		// prosess binding text
 		if err_bind := c.Bind(&CheckoutRequest); err_bind != nil {
@@ -69,6 +79,38 @@ func (cc CheckController) Checkout(secret string) echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("check out success"))
+	}
+}
+
+func (cc CheckController) GetAllCheck(secret string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// check token
+		loginId := middlewares.GetUserId(secret, c)
+		if loginId == 0 {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// check role
+		role := middlewares.GetUserRole(secret, c)
+		fmt.Println(role)
+		if role != "admin" {
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+		}
+		// getting the page
+		pageString := c.QueryParam("page")
+		halaman, err := strconv.Atoi(pageString)
+		if err != nil {
+			halaman = 1
+		}
+		fmt.Println("halamannya = ", halaman)
+		offset := (halaman - 1) * 10
+		// mengGet list
+		var hasil entities.GetAllCheckWithPage
+		// var name entities.UsersCertificate
+		// hasil.Name, _ = cer.repository.GetName(name.Id)
+		hasil.AllCheck, _ = cc.repository.GetAllCheck(offset)
+		// menGet total page
+		hasil.TotalPage, _ = cc.repository.GetTotalPage()
+		return c.JSON(http.StatusOK, hasil)
 	}
 }
 

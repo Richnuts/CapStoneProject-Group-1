@@ -42,7 +42,7 @@ func InternalServerError() DefaultResponse {
 	return DefaultResponse{
 		500,
 		"Internal Server Error",
-		"Servernya meleduk boss",
+		"Server down / Problem reading the DB",
 	}
 }
 
@@ -60,7 +60,7 @@ func BadRequest() DefaultResponse {
 	return DefaultResponse{
 		400,
 		"Bad Request",
-		"ga jalan cuk",
+		"Wrong Input",
 	}
 }
 
@@ -69,7 +69,7 @@ func ForbiddedRequest() DefaultResponse {
 	return DefaultResponse{
 		403,
 		"Forbidded Request",
-		"login dulu boss",
+		"You Cant Access This Page",
 	}
 }
 
@@ -87,6 +87,6 @@ func Unauthorized() DefaultResponse {
 	return DefaultResponse{
 		401,
 		"Unauthorized Request",
-		"yang bener pake tokennya mas",
+		"Invalid Token",
 	}
 }

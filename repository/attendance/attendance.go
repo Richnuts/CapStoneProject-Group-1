@@ -3,7 +3,6 @@ package attendance
 import (
 	"database/sql"
 	"fmt"
-	"math"
 	"sirclo/entities"
 	"time"
 )
@@ -86,7 +85,11 @@ func (ar AttendanceRepository) GetPendingAttendance(offset int, officeId int) ([
 	WHERE 
 		attendances.status = ? AND schedules.office_id = ?
 	ORDER BY attendances.created_at ASC
+<<<<<<< HEAD
 	LIMIT 10 OFFSET ?`, "Pending", offset, officeId)
+=======
+	LIMIT 10 OFFSET ?`, "Pending", officeId, offset)
+>>>>>>> 44f006dc7bcad53530e865c7c5aefcc46aa22a08
 	defer result.Close()
 	if err_query != nil {
 		return hasilAkhir, fmt.Errorf("request wfo not found")
@@ -102,7 +105,11 @@ func (ar AttendanceRepository) GetPendingAttendance(offset int, officeId int) ([
 	return hasilAkhir, nil
 }
 
+<<<<<<< HEAD
 func (ar AttendanceRepository) GetPendingAttendanceTotalPage(officeId int) (int, error) {
+=======
+func (ar AttendanceRepository) GetPendingAttendanceTotalData(officeId int) (int, error) {
+>>>>>>> 44f006dc7bcad53530e865c7c5aefcc46aa22a08
 	var hasil int
 	result := ar.db.QueryRow(`
 	SELECT 
@@ -185,7 +192,7 @@ func (ar AttendanceRepository) GetMyAttendance(userId int, offset int, status st
 	return hasilAkhir, nil
 }
 
-func (ar AttendanceRepository) GetMyAttendanceTotalPage(userId int, status string) (int, error) {
+func (ar AttendanceRepository) GetMyAttendanceTotalData(userId int, status string) (int, error) {
 	var hasil int
 	status = "%" + status + "%"
 	result := ar.db.QueryRow(`
@@ -199,7 +206,7 @@ func (ar AttendanceRepository) GetMyAttendanceTotalPage(userId int, status strin
 	if err != nil {
 		return hasil, err
 	}
-	return int((math.Ceil(float64(hasil) / float64(10)))), nil
+	return hasil, nil
 }
 
 func (ar AttendanceRepository) GetMyAttendanceSortByLatest(userId int, offset int, status string) ([]entities.AttendanceGetFormat, error) {

@@ -3,6 +3,7 @@ package checkinandout
 import (
 	"database/sql"
 	"fmt"
+	"math"
 	"sirclo/entities"
 )
 
@@ -37,22 +38,72 @@ func (cr *CheckRepository) Checkout(attendanceId, userId int) error {
 	}
 	return nil
 }
+func (cc *CheckRepository) GetAllCheck(offset int) ([]entities.GetAllCheck, error) {
+	var hasil []entities.GetAllCheck
+	// var certificates []entities.UsersCertificate
+	result, err1 := cc.db.Query(`
+	SELECT
+		id, name, nik, vaccine_status
+	FROM
+		users
+	WHERE
+		role = "user" AND vaccine_status = "Approved" 
+	LIMIT 10 OFFSET ?`, offset)
+	if err1 != nil {
+		return hasil, err1
+	}
+	defer result.Close()
+	for result.Next() {
+		var user entities.GetAllCheck
+		err := result.Scan(&user.Id, &user.Name, &user.Nik, &user.VaccineStatus)
+		if err != nil {
+			return hasil, err
+		}
+		result1, err_check := cc.db.Query(`
+		SELECT
+			attendances.id, CONVERT_TZ(schedules.date, '+00:00', '+7:00'), attendances.check_in, attendances.check_temperature, attendances.check_out, attendances.check_status
+		FROM
+			attendances
+		JOIN
+			schedules on schedules.id = attendances.schedule_id
+		WHERE
+			attendances.user_id = ? AND attendances.check_in is not null AND attendances.check_out is not null`, user.Id)
+		if err_check != nil {
+			return hasil, err_check
+		}
+		defer result1.Close()
+		for result1.Next() {
+			var check entities.CheckinAndOutResponseFormat
+			err := result1.Scan(&check.Id, &check.ScheduleDate, &check.Checkin, &check.CheckTemperature, &check.Checkout, &check.CheckStatus)
+			if err != nil {
+				return hasil, err
+			}
+			user.CheckData = append(user.CheckData, check)
+		}
+		// user.Certificates = certificates
+		fmt.Println(user)
+		hasil = append(hasil, user)
+	}
+	return hasil, nil
+}
 
 func (cc *CheckRepository) GetCheckbyId(id int) (entities.CheckinAndOutResponseFormat, error) {
 	var check entities.CheckinAndOutResponseFormat
 	result, err_check := cc.db.Query(`
 	SELECT
-		id, check_in, check_temperature, check_out, check_status
+		attendances.id, CONVERT_TZ(schedules.date, '+00:00', '+7:00'), attendances.check_in, attendances.check_temperature, attendances.check_out, attendances.check_status
 	FROM
 		attendances
+	JOIN
+		schedules on schedules.id = attendances.schedule_id
 	WHERE
-		id = ?`, id)
+		attendances.id = ? AND attendances.check_in is not null AND attendances.check_out is not null`, id)
 	if err_check != nil {
 		return check, err_check
 	}
 	defer result.Close()
 	for result.Next() {
-		err := result.Scan(&id, &check.Checkin, &check.CheckTemperature, &check.Checkout, &check.CheckStatus)
+		err := result.Scan(&check.Id, &check.ScheduleDate, &check.Checkin, &check.CheckTemperature, &check.Checkout, &check.CheckStatus)
 		if err != nil {
 			return check, err
 		}
@@ -69,7 +120,7 @@ func (cc *CheckRepository) GetCheckDate(id int) error {
 	JOIN
 		schedules ON attendances.schedule_id = schedules.id 
 	WHERE
-		attendances.id = ? AND date(schedules.date) = current_date()`, id)
+		attendances.id = ? AND date(CONVERT_TZ(schedules.date, '+00:00', '+7:00')) = date(CONVERT_TZ(now(), '+00:00', '+7:00'))`, id)
 	if err_check != nil {
 		return err_check
 	}
@@ -78,4 +129,20 @@ func (cc *CheckRepository) GetCheckDate(id int) error {
 		return fmt.Errorf("udah sehat, jangan aneh-aneh")
 	}
 	return nil
+}
+
+func (cc *CheckRepository) GetTotalPage() (int, error) {
+	var page int
+	result := cc.db.QueryRow(`
+	SELECT
+		count(id)
+	FROM
+		users 
+	WHERE 
+		vaccine_status LIKE "%Approved%"`)
+	err_scan := result.Scan(&page)
+	if err_scan != nil {
+		return 0, err_scan
+	}
+	return int((math.Ceil(float64(page) / float64(10)))), nil
 }

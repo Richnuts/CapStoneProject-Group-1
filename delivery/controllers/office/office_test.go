@@ -48,7 +48,6 @@ func TestGetOffice(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println(token)
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -67,7 +66,7 @@ func TestGetOffice(t *testing.T) {
 				assert.Error(t, err, "error")
 			}
 			fmt.Println(response)
-			assert.Equal(t, 403, res.Code)
+			assert.Equal(t, 401, res.Code)
 		}
 
 	})
@@ -108,7 +107,6 @@ func TestGetOffices(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println(token)
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -134,7 +132,6 @@ func TestGetOffices(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println(token)
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %v", token))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -151,7 +148,7 @@ func TestGetOffices(t *testing.T) {
 				assert.Error(t, err, "error")
 			}
 			fmt.Println(response)
-			assert.Equal(t, 403, res.Code)
+			assert.Equal(t, 401, res.Code)
 		}
 	})
 }

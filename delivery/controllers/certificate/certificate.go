@@ -28,7 +28,7 @@ func (cer CertificateController) CreateCertificate(secret string) echo.HandlerFu
 		// check token
 		loginId := middlewares.GetUserId(secret, c)
 		if loginId == 0 {
-			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+			return c.JSON(http.StatusUnauthorized, common.ForbiddedRequest())
 		}
 		// check role
 		role := middlewares.GetUserRole(secret, c)
@@ -102,11 +102,7 @@ func (cer CertificateController) GetMyCertificate(secret string) echo.HandlerFun
 		}
 		// mengGet certificate
 		var data entities.UsersCertificateWithName
-		data, err_get := cer.repository.GetMyCertificate(loginId)
-		if err_get != nil {
-			fmt.Println(err_get)
-			return c.JSON(http.StatusBadRequest, common.InternalServerError())
-		}
+		data, _ = cer.repository.GetMyCertificate(loginId)
 		return c.JSON(http.StatusOK, data)
 	}
 }
@@ -137,20 +133,11 @@ func (cer CertificateController) GetUsersCertificates(secret string) echo.Handle
 		// mengGet list
 		var hasil entities.UsersCertificateWithPage
 		// var name entities.UsersCertificate
-		var err_get error
 		// hasil.Name, _ = cer.repository.GetName(name.Id)
-		hasil.Certificates, err_get = cer.repository.GetUsersCertificates(status, offset)
-		if err_get != nil {
-			fmt.Println("anu", err_get)
-			return c.JSON(http.StatusBadRequest, common.InternalServerError())
-		}
+		hasil.Certificates, _ = cer.repository.GetUsersCertificates(status, offset)
+		hasil.TotalUsers, _ = cer.repository.GetTotalUsers()
 		// menGet total page
-		var err_page error
-		hasil.TotalPage, err_page = cer.repository.GetTotalPage(status)
-		if err_page != nil {
-			return c.JSON(http.StatusBadRequest, common.InternalServerError())
-		}
-
+		hasil.TotalPage, _ = cer.repository.GetTotalPage(status)
 		return c.JSON(http.StatusOK, hasil)
 	}
 }

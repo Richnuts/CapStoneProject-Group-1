@@ -37,6 +37,7 @@ type UsersCertificateWithName struct {
 }
 
 type UsersCertificateWithPage struct {
+	TotalUsers   int `json:"totalusers" form:"totalusers"`
 	Certificates []UsersCertificateWithName
 	TotalPage    int `json:"totalpage" form:"totalpage"`
 }
