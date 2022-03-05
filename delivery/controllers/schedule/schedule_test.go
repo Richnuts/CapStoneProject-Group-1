@@ -649,7 +649,7 @@ func (m mockScheduleRepository) GetSchedule(scheduleId int, offset int) (entitie
 	return entities.ScheduleResponse{}, nil
 }
 
-func (m mockScheduleRepository) GetTotalPage(scheduleId int) (int, error) {
+func (m mockScheduleRepository) GetTotalData(scheduleId int) (int, error) {
 	return 1, nil
 }
 
