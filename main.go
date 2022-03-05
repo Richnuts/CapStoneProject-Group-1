@@ -40,22 +40,36 @@ func main() {
 
 	//initialize database connection based on given config
 	db := util.MysqlDriver(config)
-	// cron job
+	// cron job auto logout 00:00 and auto Reject schedule
 	gmt, _ := time.LoadLocation("Asia/Jakarta")
 	s := gocron.NewScheduler(gmt)
 	s.Every(1).Day().At("00:00").Do(
 		func() {
-			_, err := db.Exec(`
+			_, err_auto_logout := db.Exec(`
 			UPDATE 
 				attendances 
 			SET
 				check_out = now() 
 			WHERE 
 				check_in is not null AND DAY(CONVERT_TZ(check_in, '+00:00', '+7:00')) = ? AND check_out is null`, (time.Now().Day())-1)
-			if err != nil {
+			if err_auto_logout != nil {
 				fmt.Println("gagal auto logout")
 			} else {
 				fmt.Println("autologout berjalan")
+			}
+			_, err_auto_reject := db.Exec(`
+			UPDATE
+				attendances
+			JOIN
+				schedules ON attendances.schedule_id = schedules.id
+			SET
+				attendances.status = ?, attendances.status_info = ?, attendances.created_at = now()
+			WHERE
+				DAY(CONVERT_TZ(schedules.date, '+00:00', '+7:00')) <= ? AND attendances.status = ?`, "Rejected", "Request Time Terlewat", (time.Now().Day()), "Pending")
+			if err_auto_reject != nil {
+				fmt.Println("gagal auto reject")
+			} else {
+				fmt.Println("autoreject berjalan")
 			}
 		},
 	)
