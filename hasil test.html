@@ -1,0 +1,1283 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>attendance: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">sirclo/delivery/controllers/attendance/attendance.go (97.2%)</option>
+				
+				<option value="file1">sirclo/delivery/controllers/auth/auth.go (100.0%)</option>
+				
+				<option value="file2">sirclo/delivery/controllers/certificate/certificate.go (91.9%)</option>
+				
+				<option value="file3">sirclo/delivery/controllers/checkinandout/checkinandout.go (100.0%)</option>
+				
+				<option value="file4">sirclo/delivery/controllers/office/office.go (100.0%)</option>
+				
+				<option value="file5">sirclo/delivery/controllers/schedule/schedule.go (100.0%)</option>
+				
+				<option value="file6">sirclo/delivery/controllers/user/user.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package attendance
+
+import (
+        "math"
+        "net/http"
+        "sirclo/delivery/common"
+        "sirclo/delivery/controllers/imageLib"
+        "sirclo/delivery/middlewares"
+        "sirclo/entities"
+        attendanceRepo "sirclo/repository/attendance"
+        "strconv"
+        "time"
+
+        "github.com/labstack/echo/v4"
+)
+
+type AttendanceController struct {
+        repository attendanceRepo.Attendance
+}
+
+func New(attendance attendanceRepo.Attendance) *AttendanceController <span class="cov8" title="1">{
+        return &amp;AttendanceController{
+                repository: attendance,
+        }
+}</span>
+
+func (ac AttendanceController) CreateAttendance(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // check user status vaksin
+                <span class="cov8" title="1">err_vaccine := ac.repository.GetUserVaccineStatus(loginId)
+                if err_vaccine != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "user belum vaccine"))
+                }</span>
+                <span class="cov8" title="1">var attendanceRequest AttendanceRequestFormat
+                // prosess binding text
+                if err_bind := c.Bind(&amp;attendanceRequest); err_bind != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "binding text gagal"))
+                }</span>
+                // check tanggal request &gt; tanggal sekarang
+                <span class="cov8" title="1">requestDate, err_check_date := ac.repository.CheckCreateRequestDate(attendanceRequest.ScheduleId)
+                if err_check_date != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "tanggal nya ga ada woi"))
+                }</span>
+                <span class="cov8" title="1">gmt, _ := time.LoadLocation("Asia/Jakarta")
+                currentDate := time.Now()
+                checkDate := currentDate.Before(requestDate.In(gmt))
+                if !checkDate </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "tanggal request harus lebih besar daripada tanggal hari ini"))
+                }</span>
+                // Check requestnya udah ada belom
+                <span class="cov8" title="1">err_checking := ac.repository.GetUserAttendanceStatus(loginId, attendanceRequest.ScheduleId)
+                if err_checking != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "request telah ada"))
+                }</span>
+                // proses binding image
+                <span class="cov8" title="1">fileData, fileInfo, err_binding_image := c.Request().FormFile("image")
+                if err_binding_image != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "binding image gagal"))
+                }</span>
+                // check file extension
+                <span class="cov8" title="1">_, err_check_extension := imageLib.CheckFileExtension(fileInfo.Filename)
+                if err_check_extension != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file extension error"))
+                }</span>
+                // check file size
+                <span class="cov8" title="1">err_check_size := imageLib.CheckFileSize(fileInfo.Size)
+                if err_check_size != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file size error"))
+                }</span>
+                <span class="cov8" title="1">fileName := "attendance_" + strconv.Itoa(attendanceRequest.ScheduleId) + "_" + strconv.Itoa(loginId)
+                // upload the photo
+                var err_upload_photo error
+                theUrl, err_upload_photo := imageLib.UploadImage("attendance", fileName, fileData)
+                if err_upload_photo != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "bad request", "Upload Image Failed"))
+                }</span>
+                <span class="cov0" title="0">err_create := ac.repository.CreateAttendance(loginId, attendanceRequest.ScheduleId, attendanceRequest.Description, theUrl)
+                if err_create != nil </span><span class="cov0" title="0">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(500, "internal server error", "Failed Creating Entity in database"))
+                }</span>
+                <span class="cov0" title="0">return c.JSON(http.StatusOK, common.CustomResponse(200, "operation success", "berhasil membuat request WFO"))</span>
+        }
+}
+
+func (ac AttendanceController) EditAttendance(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // check role
+                <span class="cov8" title="1">role := middlewares.GetUserRole(secret, c)
+                if role != "admin" </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                <span class="cov8" title="1">var attendanceRequest AttendanceEditFormat
+                // getting the id
+                attendanceId, err := strconv.Atoi(c.Param("id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                // prosess binding text
+                <span class="cov8" title="1">if err_bind := c.Bind(&amp;attendanceRequest); err_bind != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "binding text gagal"))
+                }</span>
+                <span class="cov8" title="1">if attendanceRequest.StatusInfo == "" </span><span class="cov8" title="1">{
+                        attendanceRequest.StatusInfo = "-"
+                }</span>
+                // check capacity
+                <span class="cov8" title="1">capacity, err_capacity := ac.repository.CheckCapacity(attendanceRequest.ScheduleId)
+                if err_capacity != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "gagal mengecheck capacity"))
+                }</span>
+                <span class="cov8" title="1">if capacity &lt; 1 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "Kapasitas telah penuh"))
+                }</span>
+                // edit the status
+                <span class="cov8" title="1">err_edit := ac.repository.EditAttendance(attendanceId, loginId, attendanceRequest.Status, attendanceRequest.StatusInfo)
+                if err_edit != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "gagal merubah status / request sudah diedit"))
+                }</span>
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, common.CustomResponse(200, "operation success", "berhasil merubah status request WFO"))</span>
+        }
+}
+
+func (ac AttendanceController) GetAttendanceById(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // getting the id
+                <span class="cov8" title="1">attendanceId, err := strconv.Atoi(c.Param("id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                // get the attendance
+                <span class="cov8" title="1">hasil, err_get := ac.repository.GetAttendanceById(attendanceId)
+                if err_get != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+                }</span>
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, hasil)</span>
+        }
+}
+
+func (ac AttendanceController) GetMyAttendance(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // getting the page
+                <span class="cov8" title="1">pageString := c.QueryParam("page")
+                halaman, err := strconv.Atoi(pageString)
+                if err != nil </span><span class="cov8" title="1">{
+                        halaman = 1
+                }</span>
+                <span class="cov8" title="1">offset := (halaman - 1) * 10
+                // getting the status
+                status := c.QueryParam("status")
+                // get the attendance
+                hasil, err_get := ac.repository.GetMyAttendance(loginId, offset, status)
+                if err_get != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+                }</span>
+                // get total page
+                <span class="cov8" title="1">countData, _ := ac.repository.GetMyAttendanceTotalData(loginId, status)
+
+                data := entities.AttendancePageFormat{TotalData: countData, TotalPage: int((math.Ceil(float64(countData) / float64(10)))), Attendance: hasil}
+
+                return c.JSON(http.StatusOK, data)</span>
+        }
+}
+
+func (ac AttendanceController) GetMyAttendanceSortByLatest(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // getting the page
+                <span class="cov8" title="1">pageString := c.QueryParam("page")
+                halaman, err := strconv.Atoi(pageString)
+                if err != nil </span><span class="cov8" title="1">{
+                        halaman = 1
+                }</span>
+                <span class="cov8" title="1">offset := (halaman - 1) * 10
+                // getting the status
+                status := c.QueryParam("status")
+                // get the attendance
+                hasil, err_get := ac.repository.GetMyAttendanceSortByLatest(loginId, offset, status)
+                if err_get != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+                }</span>
+                // get total page
+                <span class="cov8" title="1">countData, _ := ac.repository.GetMyAttendanceTotalData(loginId, status)
+
+                data := entities.AttendancePageFormat{TotalData: countData, TotalPage: int((math.Ceil(float64(countData) / float64(10)))), Attendance: hasil}
+                return c.JSON(http.StatusOK, data)</span>
+        }
+}
+
+func (ac AttendanceController) GetMyAttendanceSortByLongest(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // getting the page
+                <span class="cov8" title="1">pageString := c.QueryParam("page")
+                halaman, err := strconv.Atoi(pageString)
+                if err != nil </span><span class="cov8" title="1">{
+                        halaman = 1
+                }</span>
+                <span class="cov8" title="1">offset := (halaman - 1) * 10
+                // getting the status
+                status := c.QueryParam("status")
+                // get the attendance
+                hasil, err_get := ac.repository.GetMyAttendanceSortByLongest(loginId, offset, status)
+                if err_get != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+                }</span>
+                // get total page
+                <span class="cov8" title="1">countData, _ := ac.repository.GetMyAttendanceTotalData(loginId, status)
+                data := entities.AttendancePageFormat{TotalData: countData, TotalPage: int((math.Ceil(float64(countData) / float64(10)))), Attendance: hasil}
+                return c.JSON(http.StatusOK, data)</span>
+        }
+}
+
+func (ac AttendanceController) GetPendingAttendance(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // check role
+                <span class="cov8" title="1">role := middlewares.GetUserRole(secret, c)
+                if role != "admin" </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // getting the office
+                <span class="cov8" title="1">officeString := c.QueryParam("office")
+                officeId, err_office := strconv.Atoi(officeString)
+                if err_office != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "Operation Failed", "office wajib diisi"))
+                }</span>
+                // getting the page
+                <span class="cov8" title="1">pageString := c.QueryParam("page")
+                halaman, err := strconv.Atoi(pageString)
+                if err != nil </span><span class="cov8" title="1">{
+                        halaman = 1
+                }</span>
+                <span class="cov8" title="1">offset := (halaman - 1) * 10
+
+                // get the attendance
+                hasil, err_get := ac.repository.GetPendingAttendance(offset, officeId)
+                if err_get != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "request tidak ditemukan"))
+                }</span>
+                // get total page
+                <span class="cov8" title="1">countData, _ := ac.repository.GetPendingAttendanceTotalData(officeId)
+
+                data := entities.PendingAttendancePageFormat{TotalPage: int((math.Ceil(float64(countData) / float64(10)))), TotalData: countData, Attendance: hasil}
+                return c.JSON(http.StatusOK, data)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package auth
+
+import (
+        "net/http"
+        "sirclo/delivery/common"
+        "sirclo/entities"
+        authRepo "sirclo/repository/auth"
+
+        echo "github.com/labstack/echo/v4"
+        "golang.org/x/crypto/bcrypt"
+)
+
+type AuthController struct {
+        repository authRepo.Auth
+}
+
+func New(auth authRepo.Auth) *AuthController <span class="cov8" title="1">{
+        return &amp;AuthController{
+                repository: auth,
+        }
+}</span>
+
+func (a AuthController) Login() echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                var loginRequest LoginRequestFormat
+                // binding data mendapatkan loginRequest
+                if err := c.Bind(&amp;loginRequest); err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.CustomResponse(400, "Failed Binding", "Failed to bind JSON input"))
+                }</span>
+                // mengambil data user dari DB berdasarkan EMAIL
+                <span class="cov8" title="1">user, err_login := a.repository.FindUserByEmail(loginRequest.Email)
+                if err_login != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.CustomResponse(403, "Failed Checking Email", "Email Not Match"))
+                }</span>
+                // check password
+                <span class="cov8" title="1">err_token := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password))
+                if err_token != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.CustomResponse(403, "Failed Checking Password", "Password Not Match"))
+                }</span>
+
+                <span class="cov8" title="1">loginResponse, err := a.repository.Login(loginRequest.Email)
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, loginResponse)</span>
+        }
+}
+
+func (a AuthController) Register() echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                var userRequest UserRequestFormat
+
+                if err := c.Bind(&amp;userRequest); err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "Failed Binding", "Failed to bind JSON input"))
+                }</span>
+
+                <span class="cov8" title="1">passwordHash, _ := bcrypt.GenerateFromPassword([]byte(userRequest.Password), bcrypt.MinCost)
+                user := entities.User{
+                        Name:     userRequest.Name,
+                        Password: string(passwordHash),
+                        Email:    userRequest.Email,
+                        Nik:      userRequest.Nik,
+                        OfficeId: userRequest.OfficeId,
+                }
+
+                err_regis := a.repository.Register(user)
+
+                if err_regis != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, common.SuccessOperation("berhasil membuat user"))</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package certificate
+
+import (
+        "fmt"
+        "net/http"
+        "sirclo/delivery/common"
+        "sirclo/delivery/controllers/imageLib"
+        "sirclo/delivery/middlewares"
+        "sirclo/entities"
+        certificateRepo "sirclo/repository/certificate"
+        "strconv"
+
+        echo "github.com/labstack/echo/v4"
+)
+
+type CertificateController struct {
+        repository certificateRepo.Certificate
+}
+
+func New(certificate certificateRepo.Certificate) *CertificateController <span class="cov8" title="1">{
+        return &amp;CertificateController{
+                repository: certificate,
+        }
+}</span>
+
+func (cer CertificateController) CreateCertificate(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // check role
+                <span class="cov8" title="1">role := middlewares.GetUserRole(secret, c)
+                fmt.Println(role)
+                if role != "user" </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // check status vaccine user
+                <span class="cov8" title="1">err_status := cer.repository.GetVaccineStatus(loginId)
+                if err_status != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+                <span class="cov8" title="1">var certificateRequest CertificateRequestFormat
+                // prosess binding text
+                if err_bind := c.Bind(&amp;certificateRequest); err_bind != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                <span class="cov8" title="1">if certificateRequest.VaccineDose &gt; 3 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "jangan ngaco"))
+                }</span>
+                <span class="cov8" title="1">err_checking := cer.repository.GetCertificateByDose(loginId, certificateRequest.VaccineDose)
+
+                if err_checking != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "request telah ada"))
+                }</span>
+                // prosess binding image
+                <span class="cov8" title="1">fileData, fileInfo, err_binding_image := c.Request().FormFile("image")
+                if err_binding_image != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "bind image error"))
+                }</span>
+                // check file extension
+                <span class="cov8" title="1">_, err_check_extension := imageLib.CheckFileExtension(fileInfo.Filename)
+                if err_check_extension != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file extension error"))
+                }</span>
+                // check file size
+                <span class="cov8" title="1">err_check_size := imageLib.CheckFileSize(fileInfo.Size)
+                if err_check_size != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file size error"))
+                }</span>
+                <span class="cov8" title="1">fileName := "certificate_" + strconv.Itoa(loginId) + "_" + strconv.Itoa(certificateRequest.VaccineDose)
+
+                // upload the photo
+                var err_upload_photo error
+                theUrl, err_upload_photo := imageLib.UploadImage("certificate", fileName, fileData)
+                if err_upload_photo != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "Upload Image Failed"))
+                }</span>
+                // create certificate
+                <span class="cov0" title="0">imageURL := theUrl
+                err_certificate := cer.repository.CreateCertificate(loginId, certificateRequest.VaccineDose, imageURL, certificateRequest.Description)
+                if err_certificate != nil </span><span class="cov0" title="0">{
+                        fmt.Println(err_certificate)
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "failed creating schedule", "duplicate entry"))
+                }</span>
+                <span class="cov0" title="0">return c.JSON(http.StatusOK, common.SuccessOperation("berhasil menambah sertifikat"))</span>
+        }
+}
+
+func (cer CertificateController) GetMyCertificate(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // check role
+                <span class="cov8" title="1">role := middlewares.GetUserRole(secret, c)
+                fmt.Println(role)
+                if role != "user" </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // mengGet certificate
+                <span class="cov8" title="1">var data entities.UsersCertificateWithName
+                data, _ = cer.repository.GetMyCertificate(loginId)
+                return c.JSON(http.StatusOK, data)</span>
+        }
+}
+
+func (cer CertificateController) GetUsersCertificates(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // check role
+                <span class="cov8" title="1">role := middlewares.GetUserRole(secret, c)
+                fmt.Println(role)
+                if role != "admin" </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // getting the status
+                <span class="cov8" title="1">status := c.QueryParam("status")
+                // getting the page
+                pageString := c.QueryParam("page")
+                halaman, err := strconv.Atoi(pageString)
+                if err != nil </span><span class="cov8" title="1">{
+                        halaman = 1
+                }</span>
+                <span class="cov8" title="1">fmt.Println("halamannya = ", halaman)
+                offset := (halaman - 1) * 10
+                // mengGet list
+                var hasil entities.UsersCertificateWithPage
+                hasil.Certificates, _ = cer.repository.GetUsersCertificates(status, offset)
+                hasil.TotalUsers, _ = cer.repository.GetTotalUsers()
+                // menGet total page
+                hasil.TotalPage, _ = cer.repository.GetTotalPage(status)
+                return c.JSON(http.StatusOK, hasil)</span>
+        }
+}
+
+func (cer CertificateController) GetCertificateById(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // getting the id
+                <span class="cov8" title="1">certificateId, err := strconv.Atoi(c.Param("id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                // mengGet certificate
+                <span class="cov8" title="1">var data entities.CertificateResponseGetByIdAndUID
+                data, err_get := cer.repository.GetCertificateById(certificateId, loginId)
+                if err_get != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.InternalServerError())
+                }</span>
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, data)</span>
+        }
+}
+
+func (cer CertificateController) EditMyCertificate(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                fmt.Println(loginId)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // check role
+                <span class="cov8" title="1">role := middlewares.GetUserRole(secret, c)
+                fmt.Println(role)
+                if role != "user" </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // check status vaccine user
+                <span class="cov8" title="1">err_status := cer.repository.GetVaccineStatus(loginId)
+                if err_status != nil </span><span class="cov8" title="1">{
+                        fmt.Println("1", err_status)
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+                // getting the id
+                <span class="cov8" title="1">certificateId, err := strconv.Atoi(c.Param("id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        fmt.Println("2", err)
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                <span class="cov8" title="1">vaccineDose, _ := cer.repository.GetVaccineDose(certificateId)
+                fmt.Println("dosis", vaccineDose)
+                err_checking := cer.repository.GetCertificateByDose(loginId, vaccineDose)
+                if err_checking != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "request telah ada"))
+                }</span>
+                // prosess binding image
+                <span class="cov8" title="1">fileData, fileInfo, err_binding_image := c.Request().FormFile("image")
+                if err_binding_image != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "bind image error"))
+                }</span>
+                // check file extension
+                <span class="cov8" title="1">_, err_check_extension := imageLib.CheckFileExtension(fileInfo.Filename)
+                if err_check_extension != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file extension error"))
+                }</span>
+                // check file size
+                <span class="cov8" title="1">err_check_size := imageLib.CheckFileSize(fileInfo.Size)
+                if err_check_size != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file size error"))
+                }</span>
+                <span class="cov8" title="1">fileName := "certificate_" + strconv.Itoa(loginId) + "_" + strconv.Itoa(vaccineDose)
+
+                // upload the photo
+                var err_upload_photo error
+                theUrl, err_upload_photo := imageLib.UploadImage("certificate", fileName, fileData)
+                if err_upload_photo != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "Upload Image Failed"))
+                }</span>
+                <span class="cov0" title="0">imageURL := theUrl
+                err_edit := cer.repository.EditMyCertificate(certificateId, imageURL)
+
+                if err_edit != nil </span><span class="cov0" title="0">{
+                        fmt.Println(err_edit)
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+                <span class="cov0" title="0">return c.JSON(http.StatusOK, common.SuccessOperation("Edit image success"))</span>
+        }
+}
+
+func (cer CertificateController) EditCertificate(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                fmt.Println(loginId)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // check role
+                <span class="cov8" title="1">role := middlewares.GetUserRole(secret, c)
+                fmt.Println(role)
+                if role != "admin" </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // getting the id
+                <span class="cov8" title="1">certificateId, err := strconv.Atoi(c.Param("id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                <span class="cov8" title="1">var CertificateEditRequest CertificateEditFormat
+                // prosess binding text
+                if err_bind := c.Bind(&amp;CertificateEditRequest); err_bind != nil </span><span class="cov8" title="1">{
+                        fmt.Println(err_bind)
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                <span class="cov8" title="1">if CertificateEditRequest.Status != "Rejected" &amp;&amp; CertificateEditRequest.Status != "Approved" </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                <span class="cov8" title="1">err_edit := cer.repository.EditCertificate(certificateId, loginId, CertificateEditRequest.Status)
+
+                if err_edit != nil </span><span class="cov8" title="1">{
+                        fmt.Println(err_edit)
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, common.SuccessOperation("Edit status success"))</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package checkinandout
+
+import (
+        "fmt"
+        "net/http"
+        "sirclo/delivery/common"
+        "sirclo/delivery/middlewares"
+        "sirclo/entities"
+        checkRepo "sirclo/repository/checkinandout"
+        "strconv"
+
+        echo "github.com/labstack/echo/v4"
+)
+
+type CheckController struct {
+        repository checkRepo.CheckinAndOut
+}
+
+func New(attendance checkRepo.CheckinAndOut) *CheckController <span class="cov8" title="1">{
+        return &amp;CheckController{
+                repository: attendance,
+        }
+}</span>
+
+func (cc CheckController) Checkin(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // check role
+                <span class="cov8" title="1">role := middlewares.GetUserRole(secret, c)
+                if role != "user" </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                <span class="cov8" title="1">var CheckinRequest CheckinRequestFormat
+                status := "Approved"
+                // prosess binding text
+                if err_bind := c.Bind(&amp;CheckinRequest); err_bind != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                <span class="cov8" title="1">err_checking := cc.repository.GetCheckDate(CheckinRequest.Id)
+                if err_checking != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "belum bisa check in"))
+                }</span>
+                <span class="cov8" title="1">fmt.Println(CheckinRequest)
+                if CheckinRequest.Temperature &gt;= 37.5 </span><span class="cov8" title="1">{
+                        status = "Rejected"
+                }</span>
+                <span class="cov8" title="1">err_edit := cc.repository.Checkin(CheckinRequest.Id, loginId, CheckinRequest.Temperature, status)
+                if err_edit != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, common.SuccessOperation("check in success"))</span>
+        }
+}
+
+func (cc CheckController) Checkout(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // check role
+                <span class="cov8" title="1">role := middlewares.GetUserRole(secret, c)
+                if role != "user" </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                <span class="cov8" title="1">var CheckoutRequest CheckoutRequestFormat
+                // prosess binding text
+                if err_bind := c.Bind(&amp;CheckoutRequest); err_bind != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                <span class="cov8" title="1">err_edit := cc.repository.Checkout(CheckoutRequest.Id, loginId)
+
+                if err_edit != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, common.SuccessOperation("check out success"))</span>
+        }
+}
+
+// func (cc CheckController) GetAllCheck(secret string) echo.HandlerFunc {
+//         return func(c echo.Context) error {
+//                 // check token
+//                 loginId := middlewares.GetUserId(secret, c)
+//                 if loginId == 0 {
+//                         return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+//                 }
+//                 // check role
+//                 role := middlewares.GetUserRole(secret, c)
+//                 fmt.Println(role)
+//                 if role != "admin" {
+//                         return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+//                 }
+//                 // getting the page
+//                 pageString := c.QueryParam("page")
+//                 halaman, err := strconv.Atoi(pageString)
+//                 if err != nil {
+//                         halaman = 1
+//                 }
+//                 fmt.Println("halamannya = ", halaman)
+//                 offset := (halaman - 1) * 10
+//                 // mengGet list
+//                 var hasil entities.GetAllCheckWithPage
+//                 // var name entities.UsersCertificate
+//                 // hasil.Name, _ = cer.repository.GetName(name.Id)
+//                 hasil.AllCheck, _ = cc.repository.GetAllCheck(offset)
+//                 // menGet total page
+//                 hasil.TotalPage, _ = cc.repository.GetTotalPage()
+//                 return c.JSON(http.StatusOK, hasil)
+//         }
+// }
+
+func (cc CheckController) GetCheckById(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        fmt.Println(loginId)
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // getting the id
+                <span class="cov8" title="1">checkId, err := strconv.Atoi(c.Param("id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        fmt.Print(err)
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                // mengGet certificate
+                <span class="cov8" title="1">var data entities.CheckinAndOutResponseFormat
+                data, err_get := cc.repository.GetCheckbyId(checkId)
+                if err_get != nil </span><span class="cov8" title="1">{
+                        fmt.Println(err_get)
+                        return c.JSON(http.StatusBadRequest, common.InternalServerError())
+                }</span>
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, data)</span>
+        }
+}
+
+func (cc CheckController) GetAllCheck(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        fmt.Println(loginId)
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // getting the id
+                <span class="cov8" title="1">scheduleId, err := strconv.Atoi(c.Param("id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        fmt.Print(err)
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                // getting the page
+                <span class="cov8" title="1">pageString := c.QueryParam("page")
+                halaman, err := strconv.Atoi(pageString)
+                if err != nil </span><span class="cov8" title="1">{
+                        halaman = 1
+                }</span>
+                <span class="cov8" title="1">fmt.Println("halamannya = ", halaman)
+                offset := (halaman - 1) * 10
+                // mengGet certificate
+                var data entities.GetCheckbyDateWithPage
+                data.UsersCheck, _ = cc.repository.GetAllCheck(scheduleId, offset)
+                // menGet total page
+                data.TotalPage, _ = cc.repository.GetTotalPage()
+                return c.JSON(http.StatusOK, data)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package office
+
+import (
+        "net/http"
+        "sirclo/delivery/common"
+        "sirclo/delivery/middlewares"
+        officeRepo "sirclo/repository/office"
+        "strconv"
+
+        "github.com/labstack/echo/v4"
+)
+
+type OfficeController struct {
+        repository officeRepo.Office
+}
+
+func New(office officeRepo.Office) *OfficeController <span class="cov8" title="1">{
+        return &amp;OfficeController{
+                repository: office,
+        }
+}</span>
+
+func (oc OfficeController) GetOffices(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusUnauthorized, common.Unauthorized())
+                }</span>
+                // getting offices
+                <span class="cov8" title="1">data, _ := oc.repository.GetOffices()
+                return c.JSON(http.StatusOK, data)</span>
+        }
+}
+
+func (oc OfficeController) GetOffice(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusUnauthorized, common.Unauthorized())
+                }</span>
+                // getting the id
+                <span class="cov8" title="1">officeId, err := strconv.Atoi(c.Param("id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "Operation Failed", "Failed to convert parameter :id"))
+                }</span>
+                // getting office
+                <span class="cov8" title="1">data, _ := oc.repository.GetOffice(officeId)
+                return c.JSON(http.StatusOK, data)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package schedule
+
+import (
+        "math"
+        "net/http"
+        "sirclo/delivery/common"
+        "sirclo/delivery/middlewares"
+        "sirclo/entities"
+        scheduleRepo "sirclo/repository/schedule"
+        "strconv"
+        "time"
+
+        "github.com/labstack/echo/v4"
+)
+
+type ScheduleController struct {
+        repository scheduleRepo.Schedule
+}
+
+func New(schedule scheduleRepo.Schedule) *ScheduleController <span class="cov8" title="1">{
+        return &amp;ScheduleController{
+                repository: schedule,
+        }
+}</span>
+
+func (sr ScheduleController) CreateSchedule(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // check role
+                <span class="cov8" title="1">role := middlewares.GetUserRole(secret, c)
+                if role != "admin" </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                <span class="cov8" title="1">var scheduleRequest ScheduleRequestFormat
+                // prosess binding text
+                if err_bind := c.Bind(&amp;scheduleRequest); err_bind != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                <span class="cov8" title="1">if scheduleRequest.TotalCapacity == 0 </span><span class="cov8" title="1">{
+                        scheduleRequest.TotalCapacity = 50
+                }</span>
+                // check schedule
+                <span class="cov8" title="1">kosong, _ := sr.repository.GetSchedulesByMonthAndYear(int(scheduleRequest.Month), scheduleRequest.Year, scheduleRequest.OfficeId)
+                if kosong != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "failed creating schedule", "duplicate entry"))
+                }</span>
+                // create schedule
+                <span class="cov8" title="1">err_schedule := sr.repository.CreateSchedule(scheduleRequest.Month, scheduleRequest.Year, scheduleRequest.TotalCapacity, scheduleRequest.OfficeId)
+                if err_schedule != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "failed creating schedule", "server error"))
+                }</span>
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, common.SuccessOperation("berhasil membuat jadwal"))</span>
+        }
+}
+
+func (sr ScheduleController) EditSchedule(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // check role
+                <span class="cov8" title="1">role := middlewares.GetUserRole(secret, c)
+                if role != "admin" </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // getting the id
+                <span class="cov8" title="1">scheduleId, err := strconv.Atoi(c.Param("id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                <span class="cov8" title="1">var scheduleEdit ScheduleEditFormat
+                // prosess binding text
+                if err_bind := c.Bind(&amp;scheduleEdit); err_bind != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                // mengedit schedule
+                <span class="cov8" title="1">err_edit := sr.repository.EditSchedule(scheduleId, scheduleEdit.TotalCapacity)
+                if err_edit != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, common.SuccessOperation("berhasil mengedit jadwal"))</span>
+        }
+}
+
+func (sr ScheduleController) GetSchedule(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // getting the id
+                <span class="cov8" title="1">scheduleId, err := strconv.Atoi(c.Param("id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                // getting the page
+                <span class="cov8" title="1">pageString := c.QueryParam("page")
+                halaman, err := strconv.Atoi(pageString)
+                if err != nil </span><span class="cov8" title="1">{
+                        halaman = 1
+                }</span>
+                <span class="cov8" title="1">offset := (halaman - 1) * 10
+                // mengGet schedule
+                var data entities.ScheduleResponse
+                data, err_get := sr.repository.GetSchedule(scheduleId, offset)
+                if err_get != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+                <span class="cov8" title="1">gmt, _ := time.LoadLocation("Asia/Jakarta")
+                data.Date = data.Date.In(gmt)
+                // menGet total page
+                data.TotalData, _ = sr.repository.GetTotalData(scheduleId)
+                data.TotalPage = int((math.Ceil(float64(data.TotalData) / float64(10))))
+                return c.JSON(http.StatusOK, data)</span>
+        }
+}
+
+func (sr ScheduleController) GetSchedulesByMonthAndYear(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // getting the month
+                <span class="cov8" title="1">monthString := c.QueryParam("month")
+                month, err := strconv.Atoi(monthString)
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.CustomResponse(400, "masukin woi bulannya", "bulan gaboleh kosong"))
+                }</span>
+                // getting the year
+                <span class="cov8" title="1">yearString := c.QueryParam("year")
+                year, err := strconv.Atoi(yearString)
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.CustomResponse(400, "masukin woi tahunnya", "tahun gaboleh kosong"))
+                }</span>
+                // getting the year
+                <span class="cov8" title="1">officeId, err := strconv.Atoi(c.QueryParam("office"))
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.CustomResponse(400, "masukin woi officenya", "office gaboleh kosong"))
+                }</span>
+                // mengGet schedule
+                <span class="cov8" title="1">data, err_get := sr.repository.GetSchedulesByMonthAndYear(month, year, officeId)
+                if err_get != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, data)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package user
+
+import (
+        "net/http"
+        "sirclo/delivery/common"
+        "sirclo/delivery/controllers/imageLib"
+        "sirclo/delivery/middlewares"
+        "sirclo/entities"
+        userRepo "sirclo/repository/user"
+        "strconv"
+
+        echo "github.com/labstack/echo/v4"
+        "golang.org/x/crypto/bcrypt"
+)
+
+type UserController struct {
+        repository userRepo.User
+}
+
+func New(user userRepo.User) *UserController <span class="cov8" title="1">{
+        return &amp;UserController{
+                repository: user,
+        }
+}</span>
+
+func (uc UserController) GetProfile(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusUnauthorized, common.Unauthorized())
+                }</span>
+                <span class="cov8" title="1">result, err := uc.repository.GetUser(loginId)
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, result)</span>
+        }
+}
+
+func (uc UserController) GetUser(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusUnauthorized, common.Unauthorized())
+                }</span>
+                // check role
+                <span class="cov8" title="1">role := middlewares.GetUserRole(secret, c)
+                if role != "admin" </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
+                }</span>
+                // getting the id
+                <span class="cov8" title="1">userid, err := strconv.Atoi(c.Param("id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                <span class="cov8" title="1">result, err := uc.repository.GetUser(userid)
+
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, result)</span>
+        }
+}
+
+func (uc UserController) DeleteUser(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusUnauthorized, common.Unauthorized())
+                }</span>
+                // getting the id
+                <span class="cov8" title="1">userId, err := strconv.Atoi(c.Param("id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                <span class="cov8" title="1">if userId != loginId </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.CustomResponse(403, "Operation Failed", "Token and User Id not Match"))
+                }</span>
+                <span class="cov8" title="1">err_repo := uc.repository.DeleteUser(userId)
+
+                if err_repo != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, common.SuccessOperation("berhasil menghapus user"))</span>
+        }
+}
+
+func (uc UserController) EditUser(secret string) echo.HandlerFunc <span class="cov8" title="1">{
+        return func(c echo.Context) error </span><span class="cov8" title="1">{
+                // check token
+                loginId := middlewares.GetUserId(secret, c)
+                if loginId == 0 </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusUnauthorized, common.Unauthorized())
+                }</span>
+                // getting the id
+                <span class="cov8" title="1">userId, err := strconv.Atoi(c.Param("id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                //checking tokenId = userId
+                <span class="cov8" title="1">if loginId != userId </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusForbidden, common.CustomResponse(403, "Operation Failed", "Token and User Id not Match"))
+                }</span>
+                <span class="cov8" title="1">var userRequest UserRequestFormat
+                // prosess binding text
+                if err_bind := c.Bind(&amp;userRequest); err_bind != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusBadRequest, common.BadRequest())
+                }</span>
+                <span class="cov8" title="1">theUrl := uc.repository.GetUserImageUrl(userId)
+                if theUrl == "" </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.CustomResponse(500, "internal server error", "user image not found"))
+                }</span>
+                // prosess binding image
+                <span class="cov8" title="1">fileData, fileInfo, err_binding_image := c.Request().FormFile("image")
+                if err_binding_image == nil </span><span class="cov8" title="1">{
+                        // check file extension
+                        _, err_check_extension := imageLib.CheckFileExtension(fileInfo.Filename)
+                        if err_check_extension != nil </span><span class="cov8" title="1">{
+                                return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file extension error"))
+                        }</span>
+
+                        // check file size
+                        <span class="cov8" title="1">err_check_size := imageLib.CheckFileSize(fileInfo.Size)
+                        if err_check_size != nil </span><span class="cov8" title="1">{
+                                return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "bad request", "file size error"))
+                        }</span>
+                        <span class="cov8" title="1">fileName := "user_" + strconv.Itoa(userId)
+
+                        // upload the photo
+                        var err_upload_photo error
+                        theUrl, err_upload_photo = imageLib.UploadImage("user", fileName, fileData)
+                        if err_upload_photo != nil </span><span class="cov8" title="1">{
+                                return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                        }</span>
+                }
+
+                <span class="cov8" title="1">passwordHash, _ := bcrypt.GenerateFromPassword([]byte(userRequest.Password), bcrypt.MinCost)
+                user := entities.User{
+                        Id:       userId,
+                        Name:     userRequest.Name,
+                        Password: string(passwordHash),
+                        Email:    userRequest.Email,
+                        ImageUrl: theUrl,
+                }
+                err_edit := uc.repository.EditUser(user)
+
+                if err_edit != nil </span><span class="cov8" title="1">{
+                        return c.JSON(http.StatusInternalServerError, common.InternalServerError())
+                }</span>
+                <span class="cov8" title="1">return c.JSON(http.StatusOK, common.SuccessOperation("berhasil mengubah data user"))</span>
+        }
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
