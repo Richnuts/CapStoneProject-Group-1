@@ -63,7 +63,7 @@ func main() {
 			JOIN
 				schedules ON attendances.schedule_id = schedules.id
 			SET
-				attendances.status = ?, attendances.status_info = ?, attendances.created_at = now()
+				attendances.status = ?, attendances.status_info = ?, attendances.updated_at = now()
 			WHERE
 				DAY(CONVERT_TZ(schedules.date, '+00:00', '+7:00')) <= ? AND attendances.status = ?`, "Rejected", "Request Time Terlewat", (time.Now().Day()), "Pending")
 			if err_auto_reject != nil {
