@@ -1,7 +1,7 @@
 package certificate
 
 type CertificateRequestFormat struct {
-	VaccineDose int    `json:"vaccinedose" form:"vaccinedose"`
+	VaccineDose int    `json:"vaccine_dose" form:"vaccine_dose"`
 	Description string `json:"description" form:"description"`
 }
 

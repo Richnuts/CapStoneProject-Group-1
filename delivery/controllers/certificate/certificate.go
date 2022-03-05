@@ -28,7 +28,7 @@ func (cer CertificateController) CreateCertificate(secret string) echo.HandlerFu
 		// check token
 		loginId := middlewares.GetUserId(secret, c)
 		if loginId == 0 {
-			return c.JSON(http.StatusUnauthorized, common.ForbiddedRequest())
+			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
 		// check role
 		role := middlewares.GetUserRole(secret, c)
@@ -46,10 +46,11 @@ func (cer CertificateController) CreateCertificate(secret string) echo.HandlerFu
 		if err_bind := c.Bind(&certificateRequest); err_bind != nil {
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
-		err_checking := cer.repository.GetCertificateByDose(loginId, certificateRequest.VaccineDose)
 		if certificateRequest.VaccineDose > 3 {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "jangan ngaco"))
 		}
+		err_checking := cer.repository.GetCertificateByDose(loginId, certificateRequest.VaccineDose)
+
 		if err_checking != nil {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "request telah ada"))
 		}
@@ -132,8 +133,6 @@ func (cer CertificateController) GetUsersCertificates(secret string) echo.Handle
 		offset := (halaman - 1) * 10
 		// mengGet list
 		var hasil entities.UsersCertificateWithPage
-		// var name entities.UsersCertificate
-		// hasil.Name, _ = cer.repository.GetName(name.Id)
 		hasil.Certificates, _ = cer.repository.GetUsersCertificates(status, offset)
 		hasil.TotalUsers, _ = cer.repository.GetTotalUsers()
 		// menGet total page
@@ -188,12 +187,6 @@ func (cer CertificateController) EditMyCertificate(secret string) echo.HandlerFu
 		certificateId, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			fmt.Println("2", err)
-			return c.JSON(http.StatusBadRequest, common.BadRequest())
-		}
-		var CertificateEditRequest CertificateEditFormat
-		// prosess binding text
-		if err_bind := c.Bind(&CertificateEditRequest); err_bind != nil {
-			fmt.Println(err_bind)
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
 		vaccineDose, _ := cer.repository.GetVaccineDose(certificateId)
