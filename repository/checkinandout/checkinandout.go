@@ -156,9 +156,9 @@ func (cc *CheckRepository) GetCheckDate(id int) error {
 	}
 	defer result.Close()
 	for result.Next() {
-		return fmt.Errorf("udah sehat, jangan aneh-aneh")
+		return nil
 	}
-	return nil
+	return fmt.Errorf("id not found")
 }
 
 func (cc *CheckRepository) GetTotalPage() (int, error) {

@@ -41,7 +41,7 @@ func (cc CheckController) Checkin(secret string) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
 		err_checking := cc.repository.GetCheckDate(CheckinRequest.Id)
-		if err_checking == nil {
+		if err_checking != nil {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "belum bisa check in"))
 		}
 		fmt.Println(CheckinRequest)

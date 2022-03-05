@@ -257,22 +257,3 @@ func (cer *CertificateRepository) GetTotalUsers() (int, error) {
 	}
 	return totalUsers, nil
 }
-
-func (cer *CertificateRepository) GetName(id int) (string, error) {
-	var name string
-	result := cer.db.QueryRow(`
-	SELECT
-		a.name
-	FROM
-		certificates
-	JOIN
-		users as a ON certificates.user_id = a.id
-	WHERE
-		certificates.user_id = ?`, id)
-	fmt.Println(id)
-	err_scan := result.Scan(&name)
-	if err_scan != nil {
-		return name, err_scan
-	}
-	return name, nil
-}
