@@ -1,0 +1,455 @@
+{
+	"info": {
+		"_postman_id": "a31ad616-d5c5-4d75-819c-052cf739db34",
+		"name": "CAPSTONE",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Certificates",
+			"item": [
+				{
+					"name": "Add Certificate",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2NDYxNTY4NjQsImlkIjoxMCwicm9sZSI6ImFkbWluIn0.WzZCZEQX1cFTPi4ruoF3YoZtRK2NKVkOGquAvKCaKWo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "vaccinedose",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/C:/Users/ASUS/Downloads/Telegram Desktop/image (2).png"
+								},
+								{
+									"key": "description",
+									"value": "Sertifikat vaksin dosis 3",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://richap.space/certificates",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"certificates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Certificates",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2NDYxNTY4NjQsImlkIjoxMCwicm9sZSI6ImFkbWluIn0.WzZCZEQX1cFTPi4ruoF3YoZtRK2NKVkOGquAvKCaKWo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/mycertificates",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"mycertificates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Certificates",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2NDYxNTY4NjQsImlkIjoxMCwicm9sZSI6ImFkbWluIn0.WzZCZEQX1cFTPi4ruoF3YoZtRK2NKVkOGquAvKCaKWo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/certificates",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"certificates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Certificate By Schedule Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2NDYxNTY4NjQsImlkIjoxMCwicm9sZSI6ImFkbWluIn0.WzZCZEQX1cFTPi4ruoF3YoZtRK2NKVkOGquAvKCaKWo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/certificates/1",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"certificates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Certificate Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2NDYxNTY4NjQsImlkIjoxMCwicm9sZSI6ImFkbWluIn0.WzZCZEQX1cFTPi4ruoF3YoZtRK2NKVkOGquAvKCaKWo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"Approved\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://richap.space/certificates/2",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"certificates",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Certificate",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/C:/Users/ASUS/Downloads/Telegram Desktop/image (2).png"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://richap.space/mycertificates/1",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"mycertificates",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Check In and Out",
+			"item": [
+				{
+					"name": "Check in",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 1,\r\n    \"temperature\": 36.0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://richap.space/checkin",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"checkin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check out",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://richap.space/checkin",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"checkin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Check data by Schedule Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/checkschedule/1",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"checkschedule",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Check data by Attendance Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/checks/1",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"checks",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Schedules",
+			"item": [
+				{
+					"name": "Create Schedules",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"office_id\":1,\r\n    \"total_capacity\": 50,\r\n    \"month\": 4,\r\n    \"year\": 2022\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://richap.space/schedules",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"schedules"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Schedules per Month",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/schedules?page=1&month=4&year=2022&office=1",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"schedules"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "month",
+									"value": "4"
+								},
+								{
+									"key": "year",
+									"value": "2022"
+								},
+								{
+									"key": "office",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Schedule by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/schedules/1",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"schedules",
+								"1"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Schedule",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"total_capacity\": 75\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://richap.space/schedules/1",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"schedules",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Register",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}

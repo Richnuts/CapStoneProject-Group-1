@@ -81,7 +81,6 @@ func (cer *CertificateRepository) GetUsersCertificates(status string, offset int
 	WHERE
 		vaccine_status LIKE ? AND role = "user" 
 	LIMIT 10 OFFSET ?`, status, offset)
-	fmt.Println(status)
 	if err1 != nil {
 		return hasil, err1
 	}
@@ -103,7 +102,6 @@ func (cer *CertificateRepository) GetUsersCertificates(status string, offset int
         users.id = ? AND users.role = "user"
 	ORDER BY
 		certificates.vaccine_dose ASC`, user.Id)
-		fmt.Println(status, user.Id)
 		if err_certificates != nil {
 			return hasil, err_certificates
 		}
@@ -117,7 +115,6 @@ func (cer *CertificateRepository) GetUsersCertificates(status string, offset int
 			user.Certificates = append(user.Certificates, certificate)
 		}
 		// user.Certificates = certificates
-		fmt.Println(user)
 		hasil = append(hasil, user)
 	}
 	return hasil, nil
@@ -161,7 +158,6 @@ func (cer *CertificateRepository) EditCertificate(id, adminId int, status string
 
 func (cer *CertificateRepository) EditMyCertificate(id int, imageURL string) error {
 	result, err := cer.db.Exec("UPDATE certificates SET image_url = ?, status = ?, created_at = current_timestamp, updated_at = null WHERE id = ? AND status = ?", imageURL, "Pending", id, "Rejected")
-	fmt.Println("anu", imageURL)
 	if err != nil {
 		return err
 	}
@@ -217,7 +213,6 @@ func (cer *CertificateRepository) GetVaccineDose(id int) (int, error) {
 		certificates
 	WHERE
 		id = ?`, id)
-	fmt.Println(id)
 	err_scan := result.Scan(&dose)
 	if err_scan != nil {
 		return dose, err_scan
