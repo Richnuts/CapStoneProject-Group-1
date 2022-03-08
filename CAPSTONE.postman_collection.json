@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a31ad616-d5c5-4d75-819c-052cf739db34",
+		"_postman_id": "04587719-6a88-4434-ac44-03a2c2de5a44",
 		"name": "CAPSTONE",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -404,7 +404,7 @@
 							"query": [
 								{
 									"key": "page",
-									"value": null,
+									"value": "",
 									"disabled": true
 								}
 							]
@@ -444,10 +444,403 @@
 			]
 		},
 		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get My Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/myprofile",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"myprofile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/users/1",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Profile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "https://richap.space/users/1",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Profile",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/users/1",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Attendances",
+			"item": [
+				{
+					"name": "Create Request",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "schedule_id",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "https://richap.space/attendances",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"attendances"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Longest Attendances",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/mylongestattendances?page=x&status=bolehkosong",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"mylongestattendances"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "x"
+								},
+								{
+									"key": "status",
+									"value": "bolehkosong"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Latest Attendances",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/mylatestattendances?page=x&status=bolehkosong",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"mylatestattendances"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "x"
+								},
+								{
+									"key": "status",
+									"value": "bolehkosong"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Attendances",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/mylatestattendances?page=x&status=bolehkosong",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"mylatestattendances"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "x"
+								},
+								{
+									"key": "status",
+									"value": "bolehkosong"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Pending Attendances",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/pendingattendances?page=x",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"pendingattendances"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "x"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Attendances By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/attendances/1",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"attendances",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Attendances",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"schedule_id\": 29,\r\n    \"status\": \"Approved\",\r\n    \"status_info\": \"boleh kosong kok\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Offices",
+			"item": [
+				{
+					"name": "get all office",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/offices",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"offices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get office by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://richap.space/offices",
+							"protocol": "https",
+							"host": [
+								"richap",
+								"space"
+							],
+							"path": [
+								"offices"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"password\":\"\",\r\n    \"email\":\"\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://richap.space/login",
+					"protocol": "https",
+					"host": [
+						"richap",
+						"space"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Register",
 			"request": {
-				"method": "GET",
-				"header": []
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\":     \"userRequest.Name\",\r\n    \"password\": \"string(passwordHash)\",\r\n    \"email\":    \"userRequest.Email\",\r\n    \"nik\":      \"userRequest.Nik\",\r\n    \"office_id\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://richap.space/users",
+					"protocol": "https",
+					"host": [
+						"richap",
+						"space"
+					],
+					"path": [
+						"users"
+					]
+				}
 			},
 			"response": []
 		}
