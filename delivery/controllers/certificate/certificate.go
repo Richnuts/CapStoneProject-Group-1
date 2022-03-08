@@ -1,7 +1,6 @@
 package certificate
 
 import (
-	"fmt"
 	"net/http"
 	"sirclo/delivery/common"
 	"sirclo/delivery/controllers/imageLib"
@@ -32,7 +31,6 @@ func (cer CertificateController) CreateCertificate(secret string) echo.HandlerFu
 		}
 		// check role
 		role := middlewares.GetUserRole(secret, c)
-		fmt.Println(role)
 		if role != "user" {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
@@ -46,7 +44,7 @@ func (cer CertificateController) CreateCertificate(secret string) echo.HandlerFu
 		if err_bind := c.Bind(&certificateRequest); err_bind != nil {
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
-		if certificateRequest.VaccineDose > 3 {
+		if certificateRequest.VaccineDose > 3 && certificateRequest.VaccineDose < 1 {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "jangan ngaco"))
 		}
 		err_checking := cer.repository.GetCertificateByDose(loginId, certificateRequest.VaccineDose)
@@ -81,7 +79,6 @@ func (cer CertificateController) CreateCertificate(secret string) echo.HandlerFu
 		imageURL := theUrl
 		err_certificate := cer.repository.CreateCertificate(loginId, certificateRequest.VaccineDose, imageURL, certificateRequest.Description)
 		if err_certificate != nil {
-			fmt.Println(err_certificate)
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "failed creating schedule", "duplicate entry"))
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("berhasil menambah sertifikat"))
@@ -97,7 +94,6 @@ func (cer CertificateController) GetMyCertificate(secret string) echo.HandlerFun
 		}
 		// check role
 		role := middlewares.GetUserRole(secret, c)
-		fmt.Println(role)
 		if role != "user" {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
@@ -117,7 +113,6 @@ func (cer CertificateController) GetUsersCertificates(secret string) echo.Handle
 		}
 		// check role
 		role := middlewares.GetUserRole(secret, c)
-		fmt.Println(role)
 		if role != "admin" {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
@@ -129,7 +124,6 @@ func (cer CertificateController) GetUsersCertificates(secret string) echo.Handle
 		if err != nil {
 			halaman = 1
 		}
-		fmt.Println("halamannya = ", halaman)
 		offset := (halaman - 1) * 10
 		// mengGet list
 		var hasil entities.UsersCertificateWithPage
@@ -167,30 +161,25 @@ func (cer CertificateController) EditMyCertificate(secret string) echo.HandlerFu
 	return func(c echo.Context) error {
 		// check token
 		loginId := middlewares.GetUserId(secret, c)
-		fmt.Println(loginId)
 		if loginId == 0 {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
 		// check role
 		role := middlewares.GetUserRole(secret, c)
-		fmt.Println(role)
 		if role != "user" {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
 		// check status vaccine user
 		err_status := cer.repository.GetVaccineStatus(loginId)
 		if err_status != nil {
-			fmt.Println("1", err_status)
 			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
 		// getting the id
 		certificateId, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			fmt.Println("2", err)
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
 		vaccineDose, _ := cer.repository.GetVaccineDose(certificateId)
-		fmt.Println("dosis", vaccineDose)
 		err_checking := cer.repository.GetCertificateByDose(loginId, vaccineDose)
 		if err_checking != nil {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "request telah ada"))
@@ -222,7 +211,6 @@ func (cer CertificateController) EditMyCertificate(secret string) echo.HandlerFu
 		err_edit := cer.repository.EditMyCertificate(certificateId, imageURL)
 
 		if err_edit != nil {
-			fmt.Println(err_edit)
 			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("Edit image success"))
@@ -233,13 +221,11 @@ func (cer CertificateController) EditCertificate(secret string) echo.HandlerFunc
 	return func(c echo.Context) error {
 		// check token
 		loginId := middlewares.GetUserId(secret, c)
-		fmt.Println(loginId)
 		if loginId == 0 {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
 		// check role
 		role := middlewares.GetUserRole(secret, c)
-		fmt.Println(role)
 		if role != "admin" {
 			return c.JSON(http.StatusForbidden, common.ForbiddedRequest())
 		}
@@ -251,7 +237,6 @@ func (cer CertificateController) EditCertificate(secret string) echo.HandlerFunc
 		var CertificateEditRequest CertificateEditFormat
 		// prosess binding text
 		if err_bind := c.Bind(&CertificateEditRequest); err_bind != nil {
-			fmt.Println(err_bind)
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
 		if CertificateEditRequest.Status != "Rejected" && CertificateEditRequest.Status != "Approved" {
@@ -260,7 +245,6 @@ func (cer CertificateController) EditCertificate(secret string) echo.HandlerFunc
 		err_edit := cer.repository.EditCertificate(certificateId, loginId, CertificateEditRequest.Status)
 
 		if err_edit != nil {
-			fmt.Println(err_edit)
 			return c.JSON(http.StatusInternalServerError, common.InternalServerError())
 		}
 		return c.JSON(http.StatusOK, common.SuccessOperation("Edit status success"))
