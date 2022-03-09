@@ -44,7 +44,7 @@ func (cer CertificateController) CreateCertificate(secret string) echo.HandlerFu
 		if err_bind := c.Bind(&certificateRequest); err_bind != nil {
 			return c.JSON(http.StatusBadRequest, common.BadRequest())
 		}
-		if certificateRequest.VaccineDose > 3 && certificateRequest.VaccineDose < 1 {
+		if certificateRequest.VaccineDose < 1 || certificateRequest.VaccineDose > 3 {
 			return c.JSON(http.StatusBadRequest, common.CustomResponse(400, "operation failed", "jangan ngaco"))
 		}
 		err_checking := cer.repository.GetCertificateByDose(loginId, certificateRequest.VaccineDose)

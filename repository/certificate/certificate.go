@@ -99,7 +99,7 @@ func (cer *CertificateRepository) GetUsersCertificates(status string, offset int
     JOIN
         users on certificates.user_id = users.id
     WHERE 
-        users.id = ? AND users.role = "user"
+        users.id = ? AND users.role = "user" AND certificates.status != "Rejected"
 	ORDER BY
 		certificates.vaccine_dose ASC`, user.Id)
 		if err_certificates != nil {
